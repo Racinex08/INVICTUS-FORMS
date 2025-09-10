@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <!-- Esta etiqueta META es la clave para la compatibilidad con todos los móviles (iOS y Android). -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INVICTUS JUVENIL</title>
+    <!-- Script para el efecto de confeti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Estilos CSS integrados para la presentación -->
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --primary-hover: #0056b3;
+            --secondary-color: #6c757d;
+            --secondary-hover: #5a6268;
+            --background-color: #f0f2f5;
+            --container-bg: #ffffff;
+            --text-color: #333;
+            --label-color: #555;
+            --border-color: #ccc;
+        }
+        body {
+            font-family: Tahoma, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: radial-gradient(
+                125% 125% at -2% 101%,
+                rgba(245, 87, 2, 1) 10.5%,
+                rgba(245, 120, 2, 1) 16%,
+                rgba(245, 140, 2, 1) 17.5%,
+                rgba(245, 170, 100, 1) 25%,
+                rgba(238, 174, 202, 1) 40%,
+                rgba(202, 179, 214, 1) 65%,
+                rgba(148, 201, 233, 1) 100%
+            );
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem 0;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: var(--container-bg);
+            color: var(--text-color);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 420px;
+            width: 95%;
+            box-sizing: border-box;
+            position: relative;
+        }
+        .hidden {
+            display: none;
+        }
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            color: #666;
+            margin-top: 0;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+        .welcome-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        .btn, .btn-primary, .btn-secondary {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-sizing: border-box;
+        }
+        .btn:active, .btn-primary:active, .btn-secondary:active {
+            transform: scale(0.98);
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: var(--secondary-hover);
+        }
+        
+        #checkBtn {
+            background-color: #28a745;
+            color: white;
+        }
+        #checkBtn:hover {
+            background-color: #218838;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--label-color);
+            font-weight: bold;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        .phone-group, .date-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .phone-group select {
+            width: auto;
+            flex-basis: 35%;
+        }
+        .phone-group input {
+            flex-basis: 65%;
+        }
+        .form-actions {
+            margin-top: 2rem;
+        }
+        .loader {
+            display: none;
+            flex-direction: column; /* Alinea el SVG y el texto verticalmente */
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            color: var(--text-color);
+        }
+        
+        .na-btn {
+            display: block;
+            width: 100%;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 0.6rem;
+            border-radius: 5px;
+            margin-top: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #333;
+        }
+        .status-message { padding: 2rem 0; }
+        .status-icon { font-size: 4rem; display: block; margin-bottom: 1rem; }
+        .status-title { font-size: 2rem; margin-bottom: 1rem; }
+        .status-detail { font-size: 1.1rem; color: #555; margin-bottom: 2rem; line-height: 1.5; }
+        
+        #langToggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: #f0f0f0; 
+            border: 1px solid #ddd;
+            color: #555;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 100;
+        }
+        .confirmation-details {
+            text-align: left;
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border: 1px solid #eee;
+        }
+        .confirmation-details p {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.75rem;
+            margin: 0 0 0.75rem 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .confirmation-details p:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .confirmation-details strong {
+            color: var(--text-color);
+            margin-right: 1rem;
+        }
+        .confirmation-details span {
+            color: #555;
+            word-break: break-all;
+        }
+        .confirmation-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        @media (min-width: 480px) {
+            .confirmation-actions {
+                flex-direction: row;
+            }
+        }
+        
+        .back-button-styled {
+            all: unset;
+            box-sizing: border-box; 
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            display: inline-flex;
+            height: 3rem;
+            width: 3rem; 
+            align-items: center;
+            justify-content: center; 
+            border-radius: 9999px;
+            font-family: Segoe UI, sans-serif;
+            font-size: 1.2rem;
+            font-weight: 640;
+            color: #1d1d1f;
+            z-index: 10;
+        }
+        .back-button-styled .button-bg {
+            border-color: rgba(255, 208, 116);
+            background-color: rgba(255, 208, 116);
+        }
+        .back-button-styled .button-inner,
+        .back-button-styled .button-inner-hover,
+        .back-button-styled .button-inner-static {
+            pointer-events: none;
+            display: block;
+        }
+        .back-button-styled .button-inner { position: relative; }
+        .back-button-styled .button-inner-hover { position: absolute; top: 0; left: 0; opacity: 0; transform: translateY(70%); }
+        .back-button-styled .button-bg { overflow: hidden; border-radius: 2rem; position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: scale(1); transition: transform 1.8s cubic-bezier(0.19, 1, 0.22, 1); }
+        .back-button-styled .button-bg,
+        .back-button-styled .button-bg-layer,
+        .back-button-styled .button-bg-layers { display: block; }
+        .back-button-styled .button-bg-layers { position: absolute; left: 50%; transform: translate(-50%); top: -60%; aspect-ratio: 1 / 1; width: max(200%, 10rem); }
+        .back-button-styled .button-bg-layer { border-radius: 9999px; position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: scale(0); }
+        .back-button-styled .button-bg-layer.-purple { background-color: rgba(163, 116, 255); }
+        .back-button-styled .button-bg-layer.-turquoise { background-color: rgba(23, 241, 209); }
+        .back-button-styled .button-bg-layer.-yellow { --tw-bg-opacity: 1; background-color: rgba(255, 208, 116, var(--tw-bg-opacity)); }
+        .back-button-styled:hover .button-inner-static { opacity: 0; transform: translateY(-70%); transition: transform 1.4s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.3s linear; }
+        .back-button-styled:hover .button-inner-hover { opacity: 1; transform: translateY(0); transition: transform 1.4s cubic-bezier(0.19, 1, 0.22, 1), opacity 1.4s cubic-bezier(0.19, 1, 0.22, 1); }
+        .back-button-styled:hover .button-bg-layer { transition: transform 1.3s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.3s linear; }
+        .back-button-styled:hover .button-bg-layer-1 { transform: scale(1); }
+        .back-button-styled:hover .button-bg-layer-2 { transition-delay: 0.1s; transform: scale(1); }
+        .back-button-styled:hover .button-bg-layer-3 { transition-delay: 0.2s; transform: scale(1); }
+
+        .uiverse-yes {
+            --duration: 7s; --easing: linear; 
+            --c-color-1: rgba(245, 160, 2, 0.7);     
+            --c-color-2: #1a23ff;                     
+            --c-color-3: #e21bda;                     
+            --c-color-4: rgba(245, 120, 2, 0.7);     
+            --c-shadow: rgba(245, 124, 2, 0.5);      
+            --c-shadow-inset-top: rgba(245, 124, 2, 0.9); 
+            --c-shadow-inset-bottom: rgba(245, 170, 100, 0.8);
+            --c-radial-inner: #F57C02;                
+            --c-radial-outer: #F5A602;                
+            --c-color: #fff;                          
+            -webkit-tap-highlight-color: transparent; -webkit-appearance: none; outline: none; position: relative; cursor: pointer; border: none; display: table; border-radius: 24px; padding: 0; margin: 0; text-align: center; font-weight: 600; font-size: 16px; letter-spacing: 0.02em; line-height: 1.5; color: var(--c-color); background: radial-gradient( circle, var(--c-radial-inner), var(--c-radial-outer) 80% ); box-shadow: 0 0 14px var(--c-shadow);
+            width: 100%;
+        }
+        .uiverse-yes:before { content: ""; pointer-events: none; position: absolute; z-index: 3; left: 0; top: 0; right: 0; bottom: 0; border-radius: 24px; box-shadow: inset 0 3px 12px var(--c-shadow-inset-top), inset 0 -3px 4px var(--c-shadow-inset-bottom); }
+        .uiverse-yes .wrapper { -webkit-mask-image: -webkit-radial-gradient(white, black); overflow: hidden; border-radius: 24px; min-width: 132px; padding: 12px 0; }
+        .uiverse-yes .wrapper span { display: inline-block; position: relative; z-index: 1; }
+        .uiverse-yes:hover { --duration: 1400ms; }
+        .uiverse-yes .wrapper .circle { position: absolute; left: 0; top: 0; width: 40px; height: 40px; border-radius: 50%; filter: blur(var(--blur, 8px)); background: var(--background, transparent); transform: translate(var(--x, 0), var(--y, 0)) translateZ(0); animation: var(--animation, none) var(--duration) var(--easing) infinite; }
+        .uiverse-yes .wrapper .circle.circle-1, .uiverse-yes .wrapper .circle.circle-9, .uiverse-yes .wrapper .circle.circle-10 { --background: var(--c-color-4); }
+        .uiverse-yes .wrapper .circle.circle-3, .uiverse-yes .wrapper .circle.circle-4 { --background: var(--c-color-2); --blur: 14px; }
+        .uiverse-yes .wrapper .circle.circle-5, .uiverse-yes .wrapper .circle.circle-6 { --background: var(--c-color-3); --blur: 16px; }
+        .uiverse-yes .wrapper .circle.circle-2, .uiverse-yes .wrapper .circle.circle-7, .uiverse-yes .wrapper .circle.circle-8, .uiverse-yes .wrapper .circle.circle-11, .uiverse-yes .wrapper .circle.circle-12 { --background: var(--c-color-1); --blur: 12px; }
+        .uiverse-yes .wrapper .circle.circle-1 { --x: 0; --y: -40px; --animation: circle-1; }
+        .uiverse-yes .wrapper .circle.circle-2 { --x: 92px; --y: 8px; --animation: circle-2; }
+        .uiverse-yes .wrapper .circle.circle-3 { --x: -12px; --y: -12px; --animation: circle-3; }
+        .uiverse-yes .wrapper .circle.circle-4 { --x: 80px; --y: -12px; --animation: circle-4; }
+        .uiverse-yes .wrapper .circle.circle-5 { --x: 12px; --y: -4px; --animation: circle-5; }
+        .uiverse-yes .wrapper .circle.circle-6 { --x: 56px; --y: 16px; --animation: circle-6; }
+        .uiverse-yes .wrapper .circle.circle-7 { --x: 8px; --y: 28px; --animation: circle-7; }
+        .uiverse-yes .wrapper .circle.circle-8 { --x: 28px; --y: -4px; --animation: circle-8; }
+        .uiverse-yes .wrapper .circle.circle-9 { --x: 20px; --y: -12px; --animation: circle-9; }
+        .uiverse-yes .wrapper .circle.circle-10 { --x: 64px; --y: 16px; --animation: circle-10; }
+        .uiverse-yes .wrapper .circle.circle-11 { --x: 4px; --y: 4px; --animation: circle-11; }
+        .uiverse-yes .wrapper .circle.circle-12 { --blur: 14px; --x: 52px; --y: 4px; --animation: circle-12; }
+
+        .uiverse-no {
+            --duration: 7s; --easing: linear; --c-color-1: #ffd58c; --c-color-2: #69a5ff; --c-color-3: #c29fff; --c-color-4: rgba(140, 232, 255, 0.7); --c-shadow: rgba(99, 85, 255, 0.59); --c-shadow-inset-top: rgba(132, 156, 255, 0.9); --c-shadow-inset-bottom: rgba(62, 145, 255, 0.614); --c-radial-inner: #2637a4; --c-radial-outer: #5f64ea; --c-color: #ffffff;
+            -webkit-tap-highlight-color: transparent; -webkit-appearance: none; outline: none; position: relative; cursor: pointer; border: none; display: table; border-radius: 24px; padding: 0; margin: 0; text-align: center; font-weight: 600; font-size: 16px; letter-spacing: 0.05em; line-height: 1.5; color: var(--c-color); background: radial-gradient( circle, var(--c-radial-inner), var(--c-radial-outer) 80% ); box-shadow: 0 0 14px var(--c-shadow);
+            width: 100%;
+        }
+        .uiverse-no:before { content: ""; pointer-events: none; position: absolute; z-index: 3; left: 0; top: 0; right: 0; bottom: 0; border-radius: 28px; box-shadow: inset 0 3px 12px var(--c-shadow-inset-top), inset 0 -3px 4px var(--c-shadow-inset-bottom); }
+        .uiverse-no .wrapper { -webkit-mask-image: -webkit-radial-gradient(white, black); overflow: hidden; border-radius: 26px; min-width: 132px; padding: 12px 0; }
+        .uiverse-no .wrapper span { display: inline-block; position: relative; z-index: 1; }
+        .uiverse-no:hover { --duration: 1400ms; }
+        .uiverse-no .wrapper .circle { position: absolute; left: 0; top: 0; width: 40px; height: 40px; border-radius: 50%; filter: blur(var(--blur, 8px)); background: var(--background, transparent); transform: translate(var(--x, 0), var(--y, 0)) translateZ(0); animation: var(--animation, none) var(--duration) var(--easing) infinite; }
+        .uiverse-no .wrapper .circle.circle-1, .uiverse-no .wrapper .circle.circle-9, .uiverse-no .wrapper .circle.circle-10 { --background: var(--c-color-4); }
+        .uiverse-no .wrapper .circle.circle-3, .uiverse-no .wrapper .circle.circle-4 { --background: var(--c-color-2); --blur: 14px; }
+        .uiverse-no .wrapper .circle.circle-5, .uiverse-no .wrapper .circle.circle-6 { --background: var(--c-color-3); --blur: 16px; }
+        .uiverse-no .wrapper .circle.circle-2, .uiverse-no .wrapper .circle.circle-7, .uiverse-no .wrapper .circle.circle-8, .uiverse-no .wrapper .circle.circle-11, .uiverse-no .wrapper .circle.circle-12 { --background: var(--c-color-1); --blur: 12px; }
+        .uiverse-no .wrapper .circle.circle-1 { --x: 0; --y: -40px; --animation: circle-1; }
+        .uiverse-no .wrapper .circle.circle-2 { --x: 92px; --y: 8px; --animation: circle-2; }
+        .uiverse-no .wrapper .circle.circle-3 { --x: -12px; --y: -12px; --animation: circle-3; }
+        .uiverse-no .wrapper .circle.circle-4 { --x: 80px; --y: -12px; --animation: circle-4; }
+        .uiverse-no .wrapper .circle.circle-5 { --x: 12px; --y: -4px; --animation: circle-5; }
+        .uiverse-no .wrapper .circle.circle-6 { --x: 56px; --y: 16px; --animation: circle-6; }
+        .uiverse-no .wrapper .circle.circle-7 { --x: 8px; --y: 28px; --animation: circle-7; }
+        .uiverse-no .wrapper .circle.circle-8 { --x: 28px; --y: -4px; --animation: circle-8; }
+        .uiverse-no .wrapper .circle.circle-9 { --x: 20px; --y: -12px; --animation: circle-9; }
+        .uiverse-no .wrapper .circle.circle-10 { --x: 64px; --y: 16px; --animation: circle-10; }
+        .uiverse-no .wrapper .circle.circle-11 { --x: 4px; --y: 4px; --animation: circle-11; }
+        .uiverse-no .wrapper .circle.circle-12 { --blur: 14px; --x: 52px; --y: 4px; --animation: circle-12; }
+
+        @keyframes circle-1 { 33% { transform: translate(0px, 16px) translateZ(0); } 66% { transform: translate(12px, 64px) translateZ(0); } }
+        @keyframes circle-2 { 33% { transform: translate(80px, -10px) translateZ(0); } 66% { transform: translate(72px, -48px) translateZ(0); } }
+        @keyframes circle-3 { 33% { transform: translate(20px, 12px) translateZ(0); } 66% { transform: translate(12px, 4px) translateZ(0); } }
+        @keyframes circle-4 { 33% { transform: translate(76px, -12px) translateZ(0); } 66% { transform: translate(112px, -8px) translateZ(0); } }
+        @keyframes circle-5 { 33% { transform: translate(84px, 28px) translateZ(0); } 66% { transform: translate(40px, -32px) translateZ(0); } }
+        @keyframes circle-6 { 33% { transform: translate(28px, -16px) translateZ(0); } 66% { transform: translate(76px, -56px) translateZ(0); } }
+        @keyframes circle-7 { 33% { transform: translate(8px, 28px) translateZ(0); } 66% { transform: translate(20px, -60px) translateZ(0); } }
+        @keyframes circle-8 { 33% { transform: translate(32px, -4px) translateZ(0); } 66% { transform: translate(56px, -20px) translateZ(0); } }
+        @keyframes circle-9 { 33% { transform: translate(20px, -12px) translateZ(0); } 66% { transform: translate(80px, -8px) translateZ(0); } }
+        @keyframes circle-10 { 33% { transform: translate(68px, 20px) translateZ(0); } 66% { transform: translate(100px, 28px) translateZ(0); } }
+        @keyframes circle-11 { 33% { transform: translate(4px, 4px) translateZ(0); } 66% { transform: translate(68px, 20px) translateZ(0); } }
+        @keyframes circle-12 { 33% { transform: translate(56px, 0px) translateZ(0); } 66% { transform: translate(60px, -32px) translateZ(0); } }
+
+        /* --- INICIO ESTILOS NUEVO LOADER --- */
+        .loader-svg { /* Renombrado para evitar conflictos */
+            width: 6em;
+            height: 6em;
+        }
+        .loader-ring {
+            animation: ringA 2s linear infinite;
+        }
+        .loader-ring-a {
+            stroke: #9708F4;
+        }
+        .loader-ring-b {
+            animation-name: ringB;
+            stroke: #5E14E4;
+        }
+        .loader-ring-c {
+            animation-name: ringC;
+            stroke: #9708F4;
+        }
+        .loader-ring-d {
+            animation-name: ringD;
+            stroke: #5E14E4;
+        }
+        @keyframes ringA { from, 4% { stroke-dasharray: 0 660; stroke-width: 20; stroke-dashoffset: -330; } 12% { stroke-dasharray: 60 600; stroke-width: 30; stroke-dashoffset: -335; } 32% { stroke-dasharray: 60 600; stroke-width: 30; stroke-dashoffset: -595; } 40%, 54% { stroke-dasharray: 0 660; stroke-width: 20; stroke-dashoffset: -660; } 62% { stroke-dasharray: 60 600; stroke-width: 30; stroke-dashoffset: -665; } 82% { stroke-dasharray: 60 600; stroke-width: 30; stroke-dashoffset: -925; } 90%, to { stroke-dasharray: 0 660; stroke-width: 20; stroke-dashoffset: -990; } }
+        @keyframes ringB { from, 12% { stroke-dasharray: 0 220; stroke-width: 20; stroke-dashoffset: -110; } 20% { stroke-dasharray: 20 200; stroke-width: 30; stroke-dashoffset: -115; } 40% { stroke-dasharray: 20 200; stroke-width: 30; stroke-dashoffset: -195; } 48%, 62% { stroke-dasharray: 0 220; stroke-width: 20; stroke-dashoffset: -220; } 70% { stroke-dasharray: 20 200; stroke-width: 30; stroke-dashoffset: -225; } 90% { stroke-dasharray: 20 200; stroke-width: 30; stroke-dashoffset: -305; } 98%, to { stroke-dasharray: 0 220; stroke-width: 20; stroke-dashoffset: -330; } }
+        @keyframes ringC { from { stroke-dasharray: 0 440; stroke-width: 20; stroke-dashoffset: 0; } 8% { stroke-dasharray: 40 400; stroke-width: 30; stroke-dashoffset: -5; } 28% { stroke-dasharray: 40 400; stroke-width: 30; stroke-dashoffset: -175; } 36%, 58% { stroke-dasharray: 0 440; stroke-width: 20; stroke-dashoffset: -220; } 66% { stroke-dasharray: 40 400; stroke-width: 30; stroke-dashoffset: -225; } 86% { stroke-dasharray: 40 400; stroke-width: 30; stroke-dashoffset: -395; } 94%, to { stroke-dasharray: 0 440; stroke-width: 20; stroke-dashoffset: -440; } }
+        @keyframes ringD { from, 8% { stroke-dasharray: 0 440; stroke-width: 20; stroke-dashoffset: 0; } 16% { stroke-dasharray: 40 400; stroke-width: 30; stroke-dashoffset: -5; } 36% { stroke-dasharray: 40 400; stroke-width: 30; stroke-dashoffset: -175; } 44%, 50% { stroke-dasharray: 0 440; stroke-width: 20; stroke-dashoffset: -220; } 58% { stroke-dasharray: 40 400; stroke-width: 30; stroke-dashoffset: -225; } 78% { stroke-dasharray: 40 400; stroke-width: 30; stroke-dashoffset: -395; } 86%, to { stroke-dasharray: 0 440; stroke-width: 20; stroke-dashoffset: -440; } }
+        /* --- FIN ESTILOS NUEVO LOADER --- */
+    </style>
+</head>
+<body>
+
+<!-- Pantalla de Bienvenida -->
+<div class="container" id="welcomeScreen">
+    <button id="langToggle">ES</button>
+    <div class="logo">INVICTUS JUVENIL</div>
+    <p class="subtitle" data-translate="welcomeTitle">¿Es tu Primera Vez en INVICTUS JUVENIL? 🤔</p>
+    <div class="welcome-buttons">
+        <button class="uiverse-yes" id="yesBtn">
+            <div class="wrapper">
+                <span data-translate="yesBtnText">😀 Sí, es mi primera vez</span>
+                <div class="circle circle-12"></div><div class="circle circle-11"></div><div class="circle circle-10"></div>
+                <div class="circle circle-9"></div><div class="circle circle-8"></div><div class="circle circle-7"></div>
+                <div class="circle circle-6"></div><div class="circle circle-5"></div><div class="circle circle-4"></div>
+                <div class="circle circle-3"></div><div class="circle circle-2"></div><div class="circle circle-1"></div>
+            </div>
+        </button>
+        <button class="uiverse-no" id="noBtn">
+            <div class="wrapper">
+                <span data-translate="noBtnText">😎 No, ya he venido antes</span>
+                <div class="circle circle-12"></div><div class="circle circle-11"></div><div class="circle circle-10"></div>
+                <div class="circle circle-9"></div><div class="circle circle-8"></div><div class="circle circle-7"></div>
+                <div class="circle circle-6"></div><div class="circle circle-5"></div><div class="circle circle-4"></div>
+                <div class="circle circle-3"></div><div class="circle circle-2"></div><div class="circle circle-1"></div>
+            </div>
+        </button>
+    </div>
+</div>
+
+<!-- Formulario de Registro -->
+<div class="container hidden" id="registrationForm">
+    <button id="langToggle">ES</button>
+    <button class="back-button-styled" id="backFromRegister">
+        <span class="button-bg">
+            <span class="button-bg-layers">
+                <span class="button-bg-layer button-bg-layer-1 -purple"></span>
+                <span class="button-bg-layer button-bg-layer-2 -turquoise"></span>
+                <span class="button-bg-layer button-bg-layer-3 -yellow"></span>
+            </span>
+        </span>
+        <span class="button-inner">
+            <span class="button-inner-static">⬅</span>
+            <span class="button-inner-hover">⬅</span>
+        </span>
+    </button>
+    <div class="logo">INVICTUS JUVENIL</div>
+    <p class="subtitle" data-translate="regSubtitle">¡Bienvenido a la familia INVICTUS! 🤗</p>
+    <form id="regForm">
+        <div class="form-group">
+            <label for="invitedBy" data-translate="labelInvitedBy">👥 Invitado Por</label>
+            <input type="text" id="invitedBy" data-translate-placeholder="placeholderInvitedBy">
+            <button type="button" class="na-btn" id="naBtnInvitedBy" data-translate="naBtn">No aplica</button>
+        </div>
+        <div class="form-group">
+            <label for="fullName" data-translate="labelFullName">🏷️ Nombre y Apellido</label>
+            <input type="text" id="fullName" required data-translate-placeholder="placeholderFullName">
+        </div>
+        <div class="form-group">
+            <label for="gender" data-translate="labelGender">♀️♂️ Género</label>
+            <select id="gender" required>
+                <option value="" data-translate="genderDefault">Selecciona...</option>
+                <option value="M" data-translate="genderM">👨 Masculino</option>
+                <option value="F" data-translate="genderF">👩 Femenino</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="phone" data-translate="labelPhone">📱 Teléfono</label>
+            <div class="phone-group">
+                <select id="countryCode" required></select>
+                <input type="tel" id="phone" required data-translate-placeholder="placeholderPhone">
+            </div>
+            <button type="button" class="na-btn" id="naBtnPhone" data-translate="naBtn">No aplica</button>
+        </div>
+        <div class="form-group">
+            <label for="birthDate" data-translate="labelBirthDate">🎂 Fecha de Nacimiento</label>
+            <div class="date-group">
+                <select id="birthDay" required></select>
+                <select id="birthMonth" required></select>
+                <select id="birthYear" required></select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="age" data-translate="labelAge">🔢 Edad</label>
+            <input type="number" id="age" required min="1" max="99" oninput="this.value=this.value.slice(0,2)" data-translate-placeholder="placeholderAge">
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn-primary" id="registerBtn" data-translate="registerBtnText">🚀 ¡Registrarme!</button>
+            <div class="loader" id="registerLoader">
+                <svg viewBox="0 0 240 240" height="240" width="240" class="loader-svg">
+                    <circle stroke-linecap="round" stroke-dashoffset="-330" stroke-dasharray="0 660" stroke-width="20" stroke="#000" fill="none" r="105" cy="120" cx="120" class="loader-ring loader-ring-a"></circle>
+                    <circle stroke-linecap="round" stroke-dashoffset="-110" stroke-dasharray="0 220" stroke-width="20" stroke="#000" fill="none" r="35" cy="120" cx="120" class="loader-ring loader-ring-b"></circle>
+                    <circle stroke-linecap="round" stroke-dasharray="0 440" stroke-width="20" stroke="#000" fill="none" r="70" cy="120" cx="85" class="loader-ring loader-ring-c"></circle>
+                    <circle stroke-linecap="round" stroke-dasharray="0 440" stroke-width="20" stroke="#000" fill="none" r="70" cy="120" cx="155" class="loader-ring loader-ring-d"></circle>
+                </svg>
+                <span data-translate="registerLoaderText"></span>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Formulario de Asistencia -->
+<div class="container hidden" id="attendanceForm">
+    <button id="langToggle">ES</button>
+    <button class="back-button-styled" id="backFromAttendance">
+        <span class="button-bg">
+            <span class="button-bg-layers">
+                <span class="button-bg-layer button-bg-layer-1 -purple"></span>
+                <span class="button-bg-layer button-bg-layer-2 -turquoise"></span>
+                <span class="button-bg-layer button-bg-layer-3 -yellow"></span>
+            </span>
+        </span>
+        <span class="button-inner">
+            <span class="button-inner-static">⬅</span>
+            <span class="button-inner-hover">⬅</span>
+        </span>
+    </button>
+    <div class="logo">INVICTUS JUVENIL</div>
+    <p class="subtitle" data-translate="attSubtitle">¡Qué bueno verte de nuevo! 😊</p>
+    <form id="attForm">
+        <div class="form-group">
+            <label for="fullNameCheck" data-translate="labelFullNameCheck">🏷️ Nombre y Apellido</label>
+            <input type="text" id="fullNameCheck" required data-translate-placeholder="placeholderFullNameCheck">
+        </div>
+        <div class="form-group">
+            <label for="phoneCheck" data-translate="labelPhoneCheck">📱 Tu Número de Teléfono (Opcional)</label>
+            <div class="phone-group">
+                <select id="countryCodeCheck" required></select>
+                <input type="tel" id="phoneCheck" data-translate-placeholder="placeholderPhoneCheck">
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn-secondary" id="checkBtn" data-translate="checkBtnText">🔍 Verificar Asistencia</button>
+            <div class="loader" id="attendanceLoader">
+                <svg viewBox="0 0 240 240" height="240" width="240" class="loader-svg">
+                    <circle stroke-linecap="round" stroke-dashoffset="-330" stroke-dasharray="0 660" stroke-width="20" stroke="#000" fill="none" r="105" cy="120" cx="120" class="loader-ring loader-ring-a"></circle>
+                    <circle stroke-linecap="round" stroke-dashoffset="-110" stroke-dasharray="0 220" stroke-width="20" stroke="#000" fill="none" r="35" cy="120" cx="120" class="loader-ring loader-ring-b"></circle>
+                    <circle stroke-linecap="round" stroke-dasharray="0 440" stroke-width="20" stroke="#000" fill="none" r="70" cy="120" cx="85" class="loader-ring loader-ring-c"></circle>
+                    <circle stroke-linecap="round" stroke-dasharray="0 440" stroke-width="20" stroke="#000" fill="none" r="70" cy="120" cx="155" class="loader-ring loader-ring-d"></circle>
+                </svg>
+                <span data-translate="attendanceLoaderText"></span>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Pantalla de Confirmación de Datos -->
+<div class="container hidden" id="confirmationScreen">
+    <button id="langToggle">ES</button>
+    <h2 data-translate="confirmTitle">Verifica tu Información</h2>
+    <p class="subtitle" data-translate="confirmSubtitle">¿Están correctos estos datos?</p>
+    <div class="confirmation-details">
+        <p><strong data-translate="labelFullName"></strong> <span id="confirmName"></span></p>
+        <p><strong data-translate="labelGender"></strong> <span id="confirmGender"></span></p>
+        <p><strong data-translate="labelPhone"></strong> <span id="confirmPhone"></span></p>
+        <p><strong data-translate="labelBirthDate"></strong> <span id="confirmBirthDate"></span></p>
+        <p><strong data-translate="labelAge"></strong> <span id="confirmAge"></span></p>
+        <p><strong data-translate="labelInvitedBy"></strong> <span id="confirmInvitedBy"></span></p>
+    </div>
+    <div class="confirmation-actions">
+        <button class="btn-secondary" id="confirmNoBtn" data-translate="confirmNo">No, corregir</button>
+        <button class="btn-primary" id="confirmYesBtn" data-translate="confirmYes">Sí, registrar</button>
+    </div>
+</div>
+
+<!-- Mensaje de Éxito -->
+<div class="container hidden" id="successMessage">
+    <button id="langToggle">ES</button>
+    <div class="status-message success-message">
+        <span class="status-icon" id="successIcon">🎉</span>
+        <h2 class="status-title" id="successTitle"></h2>
+        <p class="status-detail" id="successDetail"></p>
+        <button class="btn-primary" id="backToWelcome" data-translate="backToWelcomeText">🏠 Volver al Inicio</button>
+    </div>
+</div>
+
+<!-- Mensaje de Error -->
+<div class="container hidden" id="errorMessage">
+    <button id="langToggle">ES</button>
+    <div class="status-message error-message">
+        <span class="status-icon">😔</span>
+        <h2 class="status-title" data-translate="errorTitle">¡Oops!</h2>
+        <p class="status-detail" id="errorDetail"></p>
+        <button class="btn-primary" id="backToWelcomeError" data-translate="backToWelcomeErrorText">🏠 Volver al Inicio</button>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzC01Y7XvyNlqlIsSjpVVmu1jHVZutMrDwjICVmIrLKwtEXDgF5yIQazrtV5yTN8ghMyg/exec";
+
+    const translations = {
+        es: {
+            welcomeTitle: "¿Es tu Primera Vez en INVICTUS JUVENIL? 🤔",
+            yesBtnText: "😀 Sí, es mi primera vez",
+            noBtnText: "😎 No, ya he venido antes",
+            regSubtitle: "¡Bienvenido a la familia INVICTUS! 🤗",
+            labelInvitedBy: "👥 Invitado Por",
+            naBtn: "No aplica",
+            labelFullName: "🏷️ Nombre y Apellido:",
+            labelGender: "♀️♂️ Género:",
+            genderDefault: "Selecciona...",
+            genderM: "👨 Masculino",
+            genderF: "👩 Femenino",
+            labelPhone: "📱 Teléfono:",
+            labelBirthDate: "🎂 Fecha de Nacimiento:",
+            labelAge: "🔢 Edad:",
+            registerBtnText: "🚀 ¡Registrarme!",
+            registerLoaderText: "Procesando la Información...",
+            attSubtitle: "¡Qué bueno verte de nuevo! 😊",
+            labelFullNameCheck: "🏷️ Nombre y Apellido:",
+            labelPhoneCheck: "📱 Tu Número de Teléfono (Opcional)",
+            checkBtnText: "🔍 Verificar Asistencia",
+            attendanceLoaderText: "Procesando la Información... ",
+            successTitle: "¡Excelente!",
+            welcomeBackTitle: "¡Qué bueno verte!",
+            errorTitle: "¡Oops!",
+            ageMismatchError: "La edad no coincide con la fecha de nacimiento. Por favor, verifica los datos.",
+            backToWelcomeText: "🏠 Volver al Inicio",
+            backToWelcomeErrorText: "🏠 Volver al Inicio",
+            registrationSuccess: "¡Bienvenido/a a la familia, {name}! Dios tiene grandes planes para ti ✨",
+            registrationWelcomeBack: "¡Qué alegría verte de nuevo, {name}! Tu asistencia ha sido marcada.",
+            attendanceSuccess: "¡Dios te ama, {name}! Nos alegra verte de nuevo 🤗",
+            attendanceError: "No pudimos encontrar una coincidencia. Por favor, verifica tus datos o regístrate si es tu primera vez.",
+            offlineTitle: "Registro Guardado 💾",
+            offlineDetail: "No tienes conexión a internet. Guardamos tus datos y los enviaremos automáticamente cuando te conectes. ¡Nos vemos!",
+            syncNotification: "Se enviaron tus registros pendientes. ¡Gracias!",
+            placeholderInvitedBy: "¿Quién te invitó?",
+            placeholderFullName: "Tu nombre completo",
+            placeholderPhone: "0000-0000",
+            placeholderAge: "18",
+            placeholderFullNameCheck: "El nombre con el que te registraste",
+            placeholderPhoneCheck: "Opcional, para ser más preciso",
+            confirmTitle: "Verifica tu Información",
+            confirmSubtitle: "¿Están correctos estos datos?",
+            confirmYes: "Sí, registrar",
+            confirmNo: "No, corregir",
+            dateSelects: { day: "Día", month: "Mes", year: "Año" }
+        },
+        en: {
+            welcomeTitle: "Is this your First Time at INVICTUS YOUTH? 🤔",
+            yesBtnText: "😀 Yes, it's my first time",
+            noBtnText: "😎 No, I've been here before",
+            regSubtitle: "Welcome to the INVICTUS family! 🤗",
+            labelInvitedBy: "👥 Invited By",
+            naBtn: "N/A",
+            labelFullName: "🏷️ Full Name:",
+            labelGender: "♀️♂️ Gender:",
+            genderDefault: "Select...",
+            genderM: "👨 Male",
+            genderF: "👩 Female",
+            labelPhone: "📱 Phone:",
+            labelBirthDate: "🎂 Date of Birth:",
+            labelAge: "🔢 Age:",
+            registerBtnText: "🚀 Register Me!",
+            registerLoaderText: "Processing Information...",
+            attSubtitle: "Great to see you again! 😊",
+            labelFullNameCheck: "🏷️ Full Name:",
+            labelPhoneCheck: "📱 Your Phone Number (Optional)",
+            checkBtnText: "🔍 Check Attendance",
+            attendanceLoaderText: "Processing Information...",
+            successTitle: "Excellent!",
+            welcomeBackTitle: "Great to see you!",
+            errorTitle: "Oops!",
+            ageMismatchError: "The age does not match the date of birth. Please check your data.",
+            backToWelcomeText: "🏠 Back to Start",
+            backToWelcomeErrorText: "🏠 Back to Start",
+            registrationSuccess: "Welcome to the family, {name}! God has great plans for you ✨",
+            registrationWelcomeBack: "So glad to see you again, {name}! Your attendance has been marked.",
+            attendanceSuccess: "God loves you, {name}! We're glad to see you again 🤗",
+            attendanceError: "We couldn't find a match. Please check your data or register if it's your first time.",
+            offlineTitle: "Registration Saved 💾",
+            offlineDetail: "You are currently offline. We've saved your data and will send it automatically when you're back online. See you!",
+            syncNotification: "Your pending registrations have been sent. Thank you!",
+            placeholderInvitedBy: "Who invited you?",
+            placeholderFullName: "Your full name",
+            placeholderPhone: "0000-0000",
+            placeholderAge: "18",
+            placeholderFullNameCheck: "The name you registered with",
+            placeholderPhoneCheck: "Optional, for a precise match",
+            confirmTitle: "Verify Your Information",
+            confirmSubtitle: "Is this data correct?",
+            confirmYes: "Yes, register",
+            confirmNo: "No, go back",
+            dateSelects: { day: "Day", month: "Month", year: "Year" }
+        },
+        zh: { // Chino
+            welcomeTitle: "这是您第一次参加 INVICTUS 青年活动吗？ 🤔",
+            yesBtnText: "😀 是的，我是第一次来",
+            noBtnText: "😎 不，我以前来过",
+            regSubtitle: "欢迎来到 INVICTUS 大家庭！ 🤗",
+            labelInvitedBy: "👥 邀请人",
+            naBtn: "不适用",
+            labelFullName: "🏷️ 姓名:",
+            labelGender: "♀️♂️ 性别:",
+            genderDefault: "选择...",
+            genderM: "👨 男性",
+            genderF: "👩 女性",
+            labelPhone: "📱 电话:",
+            labelBirthDate: "🎂 出生日期:",
+            labelAge: "🔢 年龄:",
+            registerBtnText: "🚀 注册!",
+            registerLoaderText: "正在处理信息...",
+            attSubtitle: "很高兴再次见到你！ 😊",
+            labelFullNameCheck: "🏷️ 姓名:",
+            labelPhoneCheck: "📱 您的电话号码（可选）",
+            checkBtnText: "🔍 签到",
+            attendanceLoaderText: "正在处理信息...",
+            successTitle: "太棒了!",
+            welcomeBackTitle: "很高兴见到你!",
+            errorTitle: "哎呀!",
+            ageMismatchError: "年龄与出生日期不符。请检查您的数据。",
+            backToWelcomeText: "🏠 返回首页",
+            backToWelcomeErrorText: "🏠 返回首页",
+            registrationSuccess: "欢迎加入大家庭，{name}！上帝为您制定了伟大的计划 ✨",
+            registrationWelcomeBack: "很高兴再次见到你，{name}！您的出席已记录。",
+            attendanceSuccess: "上帝爱你，{name}！我们很高兴再次见到你 🤗",
+            attendanceError: "我们找不到匹配项。请检查您的数据，或者如果您是第一次来，请注册。",
+            offlineTitle: "注册已保存 💾",
+            offlineDetail: "您当前处于离线状态。我们已保存您的数据，并会在您重新上线后自动发送。再见！",
+            syncNotification: "您待处理的注册已发送。谢谢！",
+            placeholderInvitedBy: "谁邀请了你？",
+            placeholderFullName: "您的全名",
+            placeholderPhone: "0000-0000",
+            placeholderAge: "18",
+            placeholderFullNameCheck: "您注册时使用的名字",
+            placeholderPhoneCheck: "可选，为了更精确的匹配",
+            confirmTitle: "验证您的信息",
+            confirmSubtitle: "这些数据正确吗？",
+            confirmYes: "是的，注册",
+            confirmNo: "不，返回修改",
+            dateSelects: { day: "日", month: "月", year: "年" }
+        },
+        pt: { // Portugués
+            welcomeTitle: "É a sua Primeira Vez no INVICTUS JUVENIL? 🤔",
+            yesBtnText: "😀 Sim, é a minha primeira vez",
+            noBtnText: "😎 Não, já vim antes",
+            regSubtitle: "Bem-vindo à família INVICTUS! 🤗",
+            labelInvitedBy: "👥 Convidado Por",
+            naBtn: "N/A",
+            labelFullName: "🏷️ Nome Completo:",
+            labelGender: "♀️♂️ Género:",
+            genderDefault: "Selecione...",
+            genderM: "👨 Masculino",
+            genderF: "👩 Feminino",
+            labelPhone: "📱 Telefone:",
+            labelBirthDate: "🎂 Data de Nascimento:",
+            labelAge: "🔢 Idade:",
+            registerBtnText: "🚀 Registrar-me!",
+            registerLoaderText: "Processando a Informação...",
+            attSubtitle: "Que bom te ver de novo! 😊",
+            labelFullNameCheck: "🏷️ Nome Completo:",
+            labelPhoneCheck: "📱 Seu Número de Telefone (Opcional)",
+            checkBtnText: "🔍 Verificar Presença",
+            attendanceLoaderText: "Processando a Informação...",
+            successTitle: "Excelente!",
+            welcomeBackTitle: "Que bom te ver!",
+            errorTitle: "Oops!",
+            ageMismatchError: "A idade não corresponde à data de nascimento. Por favor, verifique os dados.",
+            backToWelcomeText: "🏠 Voltar ao Início",
+            backToWelcomeErrorText: "🏠 Voltar ao Início",
+            registrationSuccess: "Bem-vindo(a) à família, {name}! Deus tem grandes planos para você ✨",
+            registrationWelcomeBack: "Que alegria te ver de novo, {name}! Sua presença foi marcada.",
+            attendanceSuccess: "Deus te ama, {name}! Estamos felizes em te ver de novo 🤗",
+            attendanceError: "Não conseguimos encontrar uma correspondência. Por favor, verifique seus dados ou registre-se se for sua primeira vez.",
+            offlineTitle: "Registro Salvo 💾",
+            offlineDetail: "Você está sem conexão com a internet. Salvamos seus dados e os enviaremos automaticamente quando você se conectar. Até logo!",
+            syncNotification: "Seus registros pendentes foram enviados. Obrigado!",
+            placeholderInvitedBy: "Quem te convidou?",
+            placeholderFullName: "Seu nome completo",
+            placeholderPhone: "0000-0000",
+            placeholderAge: "18",
+            placeholderFullNameCheck: "O nome com o qual você se registrou",
+            placeholderPhoneCheck: "Opcional, para maior precisão",
+            confirmTitle: "Verifique suas Informações",
+            confirmSubtitle: "Estes dados estão corretos?",
+            confirmYes: "Sim, registrar",
+            confirmNo: "Não, corrigir",
+            dateSelects: { day: "Dia", month: "Mês", year: "Ano" }
+        },
+        ja: { // Japonés
+            welcomeTitle: "INVICTUS YOUTHへようこそ！初めてですか？ 🤔",
+            yesBtnText: "😀 はい、初めてです",
+            noBtnText: "😎 いいえ、来たことがあります",
+            regSubtitle: "INVICTUSファミリーへようこそ！ 🤗",
+            labelInvitedBy: "👥 紹介者",
+            naBtn: "該当なし",
+            labelFullName: "🏷️ 氏名:",
+            labelGender: "♀️♂️ 性別:",
+            genderDefault: "選択...",
+            genderM: "👨 男性",
+            genderF: "👩 女性",
+            labelPhone: "📱 電話番号:",
+            labelBirthDate: "🎂 生年月日:",
+            labelAge: "🔢 年齢:",
+            registerBtnText: "🚀 登録する！",
+            registerLoaderText: "情報を処理中...",
+            attSubtitle: "またお会いできて嬉しいです！ 😊",
+            labelFullNameCheck: "🏷️ 氏名:",
+            labelPhoneCheck: "📱 電話番号（任意）",
+            checkBtnText: "🔍 出席を確認",
+            attendanceLoaderText: "情報を処理中...",
+            successTitle: "素晴らしい！",
+            welcomeBackTitle: "お会いできて嬉しいです！",
+            errorTitle: "おっと！",
+            ageMismatchError: "年齢が誕生日と一致しません。データを確認してください。",
+            backToWelcomeText: "🏠 最初に戻る",
+            backToWelcomeErrorText: "🏠 最初に戻る",
+            registrationSuccess: "ようこそ、{name}さん！神はあなたのために素晴らしい計画を用意しています ✨",
+            registrationWelcomeBack: "またお会いできて嬉しいです、{name}さん！出席が記録されました。",
+            attendanceSuccess: "神はあなたを愛しています、{name}さん！またお会いできて嬉しいです 🤗",
+            attendanceError: "一致するものが見つかりませんでした。データを確認するか、初めての場合は登録してください。",
+            offlineTitle: "登録が保存されました 💾",
+            offlineDetail: "現在オフラインです。データを保存しました。オンラインに戻り次第、自動的に送信されます。ではまた！",
+            syncNotification: "保留中の登録が送信されました。ありがとうございます！",
+            placeholderInvitedBy: "誰に招待されましたか？",
+            placeholderFullName: "あなたのフルネーム",
+            placeholderPhone: "0000-0000",
+            placeholderAge: "18",
+            placeholderFullNameCheck: "登録した名前",
+            placeholderPhoneCheck: "任意、より正確な照合のため",
+            confirmTitle: "情報を確認してください",
+            confirmSubtitle: "このデータは正しいですか？",
+            confirmYes: "はい、登録します",
+            confirmNo: "いいえ、修正します",
+            dateSelects: { day: "日", month: "月", year: "年" }
+        },
+        ko: { // Coreano
+            welcomeTitle: "INVICTUS 청소년부에 처음 오셨나요? 🤔",
+            yesBtnText: "😀 네, 처음이에요",
+            noBtnText: "😎 아니요, 와본 적 있어요",
+            regSubtitle: "INVICTUS 가족이 된 것을 환영합니다! 🤗",
+            labelInvitedBy: "👥 초대한 사람",
+            naBtn: "해당 없음",
+            labelFullName: "🏷️ 이름:",
+            labelGender: "♀️♂️ 성별:",
+            genderDefault: "선택...",
+            genderM: "👨 남성",
+            genderF: "👩 여성",
+            labelPhone: "📱 전화번호:",
+            labelBirthDate: "🎂 생년월일:",
+            labelAge: "🔢 나이:",
+            registerBtnText: "🚀 등록하기!",
+            registerLoaderText: "정보 처리 중...",
+            attSubtitle: "다시 만나서 반가워요! 😊",
+            labelFullNameCheck: "🏷️ 이름:",
+            labelPhoneCheck: "📱 전화번호 (선택 사항)",
+            checkBtnText: "🔍 출석 확인",
+            attendanceLoaderText: "정보 처리 중...",
+            successTitle: "좋아요!",
+            welcomeBackTitle: "만나서 반가워요!",
+            errorTitle: "죄송합니다!",
+            ageMismatchError: "나이가 생년월일과 일치하지 않습니다. 데이터를 확인해주세요.",
+            backToWelcomeText: "🏠 처음으로 돌아가기",
+            backToWelcomeErrorText: "🏠 처음으로 돌아가기",
+            registrationSuccess: "가족이 된 것을 환영합니다, {name}님! 하나님은 당신을 위한 위대한 계획을 가지고 계십니다 ✨",
+            registrationWelcomeBack: "다시 만나서 정말 기뻐요, {name}님! 출석이 기록되었습니다.",
+            attendanceSuccess: "하나님은 당신을 사랑하십니다, {name}님! 다시 만나서 기뻐요 🤗",
+            attendanceError: "일치하는 정보를 찾을 수 없습니다. 데이터를 확인하거나 처음 오셨다면 등록해주세요.",
+            offlineTitle: "등록 정보 저장됨 💾",
+            offlineDetail: "현재 오프라인 상태입니다. 데이터를 저장했으며, 온라인 상태가 되면 자동으로 전송됩니다. 다음에 봬요!",
+            syncNotification: "보류 중인 등록 정보가 전송되었습니다. 감사합니다!",
+            placeholderInvitedBy: "누가 당신을 초대했나요?",
+            placeholderFullName: "당신의 전체 이름",
+            placeholderPhone: "0000-0000",
+            placeholderAge: "18",
+            placeholderFullNameCheck: "등록한 이름",
+            placeholderPhoneCheck: "선택 사항, 더 정확한 일치를 위해",
+            confirmTitle: "정보를 확인하세요",
+            confirmSubtitle: "이 정보가 맞습니까?",
+            confirmYes: "네, 등록합니다",
+            confirmNo: "아니요, 수정합니다",
+            dateSelects: { day: "일", month: "월", year: "년" }
+        },
+        de: { // Alemán
+            welcomeTitle: "Bist du zum ersten Mal bei INVICTUS JUGEND? 🤔",
+            yesBtnText: "😀 Ja, ich bin zum ersten Mal hier",
+            noBtnText: "😎 Nein, ich war schon einmal hier",
+            regSubtitle: "Willkommen in der INVICTUS-Familie! 🤗",
+            labelInvitedBy: "👥 Eingeladen von",
+            naBtn: "N/A",
+            labelFullName: "🏷️ Vollständiger Name:",
+            labelGender: "♀️♂️ Geschlecht:",
+            genderDefault: "Wählen...",
+            genderM: "👨 Männlich",
+            genderF: "👩 Weiblich",
+            labelPhone: "📱 Telefon:",
+            labelBirthDate: "🎂 Geburtsdatum:",
+            labelAge: "🔢 Alter:",
+            registerBtnText: "🚀 Registrieren!",
+            registerLoaderText: "Informationen werden verarbeitet...",
+            attSubtitle: "Schön, dich wiederzusehen! 😊",
+            labelFullNameCheck: "🏷️ Vollständiger Name:",
+            labelPhoneCheck: "📱 Deine Telefonnummer (Optional)",
+            checkBtnText: "🔍 Anwesenheit prüfen",
+            attendanceLoaderText: "Informationen werden verarbeitet...",
+            successTitle: "Ausgezeichnet!",
+            welcomeBackTitle: "Schön, dich zu sehen!",
+            errorTitle: "Hoppla!",
+            ageMismatchError: "Das Alter stimmt nicht mit dem Geburtsdatum überein. Bitte überprüfe deine Daten.",
+            backToWelcomeText: "🏠 Zurück zum Start",
+            backToWelcomeErrorText: "🏠 Zurück zum Start",
+            registrationSuccess: "Willkommen in der Familie, {name}! Gott hat große Pläne für dich ✨",
+            registrationWelcomeBack: "So schön, dich wiederzusehen, {name}! Deine Anwesenheit wurde vermerkt.",
+            attendanceSuccess: "Gott liebt dich, {name}! Wir freuen uns, dich wiederzusehen 🤗",
+            attendanceError: "Wir konnten keine Übereinstimmung finden. Bitte überprüfe deine Daten oder registriere dich, wenn du zum ersten Mal hier bist.",
+            offlineTitle: "Registrierung Gespeichert 💾",
+            offlineDetail: "Du bist derzeit offline. Wir haben deine Daten gespeichert und senden sie automatisch, wenn du wieder online bist. Bis bald!",
+            syncNotification: "Deine ausstehenden Registrierungen wurden gesendet. Danke!",
+            placeholderInvitedBy: "Wer hat dich eingeladen?",
+            placeholderFullName: "Dein vollständiger Name",
+            placeholderPhone: "0000-0000",
+            placeholderAge: "18",
+            placeholderFullNameCheck: "Der Name, mit dem du dich registriert hast",
+            placeholderPhoneCheck: "Optional, für eine genaue Übereinstimmung",
+            confirmTitle: "Überprüfe deine Informationen",
+            confirmSubtitle: "Sind diese Daten korrekt?",
+            confirmYes: "Ja, registrieren",
+            confirmNo: "Nein, korrigieren",
+            dateSelects: { day: "Tag", month: "Monat", year: "Jahr" }
+        },
+        ru: { // Ruso
+            welcomeTitle: "Вы впервые в INVICTUS YOUTH? 🤔",
+            yesBtnText: "😀 Да, я здесь впервые",
+            noBtnText: "😎 Нет, я уже был здесь",
+            regSubtitle: "Добро пожаловать в семью INVICTUS! 🤗",
+            labelInvitedBy: "👥 Приглашен(а) кем",
+            naBtn: "Н/Д",
+            labelFullName: "🏷️ Имя и Фамилия:",
+            labelGender: "♀️♂️ Пол:",
+            genderDefault: "Выберите...",
+            genderM: "👨 Мужской",
+            genderF: "👩 Женский",
+            labelPhone: "📱 Телефон:",
+            labelBirthDate: "🎂 Дата рождения:",
+            labelAge: "🔢 Возраст:",
+            registerBtnText: "🚀 Зарегистрироваться!",
+            registerLoaderText: "Обработка информации...",
+            attSubtitle: "Рады видеть вас снова! 😊",
+            labelFullNameCheck: "🏷️ Имя и Фамилия:",
+            labelPhoneCheck: "📱 Ваш номер телефона (необязательно)",
+            checkBtnText: "🔍 Отметить посещение",
+            attendanceLoaderText: "Обработка информации...",
+            successTitle: "Отлично!",
+            welcomeBackTitle: "Рады вас видеть!",
+            errorTitle: "Ой!",
+            ageMismatchError: "Возраст не соответствует дате рождения. Пожалуйста, проверьте данные.",
+            backToWelcomeText: "🏠 Вернуться в начало",
+            backToWelcomeErrorText: "🏠 Вернуться в начало",
+            registrationSuccess: "Добро пожаловать в семью, {name}! У Бога на вас большие планы ✨",
+            registrationWelcomeBack: "Так рады видеть вас снова, {name}! Ваше посещение отмечено.",
+            attendanceSuccess: "Бог любит вас, {name}! Мы рады видеть вас снова 🤗",
+            attendanceError: "Не удалось найти совпадение. Пожалуйста, проверьте свои данные или зарегистрируйтесь, если вы здесь впервые.",
+            offlineTitle: "Регистрация сохранена 💾",
+            offlineDetail: "Вы не в сети. Мы сохранили ваши данные и отправим их автоматически, когда вы подключитесь. До встречи!",
+            syncNotification: "Ваши ожидающие регистрации были отправлены. Спасибо!",
+            placeholderInvitedBy: "Кто вас пригласил?",
+            placeholderFullName: "Ваше полное имя",
+            placeholderPhone: "0000-0000",
+            placeholderAge: "18",
+            placeholderFullNameCheck: "Имя, с которым вы зарегистрировались",
+            placeholderPhoneCheck: "Необязательно, для более точного совпадения",
+            confirmTitle: "Проверьте вашу информацию",
+            confirmSubtitle: "Эти данные верны?",
+            confirmYes: "Да, зарегистрировать",
+            confirmNo: "Нет, исправить",
+            dateSelects: { day: "День", month: "Месяц", year: "Год" }
+        }
+    };
+    
+    const supportedLangs = ['es', 'en', 'zh', 'pt', 'ja', 'ko', 'de', 'ru'];
+    let currentLangIndex = 0;
+    let currentLang = supportedLangs[currentLangIndex];
+    let pendingRegistrationData = null; 
+    const screens = {
+        welcome: document.getElementById('welcomeScreen'),
+        registration: document.getElementById('registrationForm'),
+        attendance: document.getElementById('attendanceForm'),
+        success: document.getElementById('successMessage'),
+        error: document.getElementById('errorMessage'),
+        confirmation: document.getElementById('confirmationScreen')
+    };
+
+    const countryCodes = [
+        { name: "Panamá", code: "507", flag: "🇵🇦", format: [4, 4] },
+        { name: "USA", code: "1", flag: "🇺🇸", format: [3, 3, 4] },
+        { name: "México", code: "52", flag: "🇲🇽", format: [2, 4, 4] },
+        { name: "Colombia", code: "57", flag: "🇨🇴", format: [3, 3, 4] },
+        { name: "España", code: "34", flag: "🇪🇸", format: [3, 3, 3] },
+        { name: "Argentina", code: "54", flag: "🇦🇷", format: [2, 4, 4] },
+        { name: "Perú", code: "51", flag: "🇵🇪", format: [3, 3, 3] },
+        { name: "Venezuela", code: "58", flag: "🇻🇪", format: [3, 7] },
+        { name: "Chile", code: "56", flag: "🇨🇱", format: [1, 4, 4] },
+        { name: "Ecuador", code: "593", flag: "🇪🇨", format: [1, 3, 4] },
+        { name: "Guatemala", code: "502", flag: "🇬🇹", format: [4, 4] },
+        { name: "Cuba", code: "53", flag: "🇨🇺", format: [1, 3, 4] },
+        { name: "Bolivia", code: "591", flag: "🇧🇴", format: [1, 7] },
+        { name: "Honduras", code: "504", flag: "🇭🇳", format: [4, 4] },
+        { name: "Paraguay", code: "595", flag: "🇵🇾", format: [3, 6] },
+        { name: "El Salvador", code: "503", flag: "🇸🇻", format: [4, 4] },
+        { name: "Nicaragua", code: "505", flag: "🇳🇮", format: [4, 4] },
+        { name: "Costa Rica", code: "506", flag: "🇨🇷", format: [4, 4] },
+        { name: "Puerto Rico", code: "1939", flag: "🇵🇷", format: [3, 3, 4] },
+        { name: "Uruguay", code: "598", flag: "🇺🇾", format: [2, 3, 3] },
+        { name: "Canadá", code: "1", flag: "🇨🇦", format: [3, 3, 4] },
+        { name: "Brasil", code: "55", flag: "🇧🇷", format: [2, 5, 4] },
+        { name: "Reino Unido", code: "44", flag: "🇬🇧", format: [4, 6] },
+        { name: "Francia", code: "33", flag: "🇫🇷", format: [1, 2, 2, 2, 2] },
+        { name: "Alemania", code: "49", flag: "🇩🇪", format: [3, 7] },
+        { name: "Italia", code: "39", flag: "🇮🇹", format: [3, 7] },
+        { name: "Portugal", code: "351", flag: "🇵🇹", format: [3, 3, 3] },
+        { name: "Japón", code: "81", flag: "🇯🇵", format: [2, 4, 4] },
+        { name: "China", code: "86", flag: "🇨🇳", format: [3, 4, 4] },
+        { name: "India", code: "91", flag: "🇮🇳", format: [5, 5] },
+        { name: "Australia", code: "61", flag: "🇦🇺", format: [1, 4, 4] },
+        { name: "Rusia", code: "7", flag: "🇷🇺", format: [3, 3, 2, 2] },
+        { name: "Corea del Sur", code: "82", flag: "🇰🇷", format: [2, 4, 4] },
+        { name: "Suiza", code: "41", flag: "🇨🇭", format: [2, 3, 2, 2] },
+        { name: "Suecia", code: "46", flag: "🇸🇪", format: [2, 3, 2, 2] },
+        { name: "Noruega", code: "47", flag: "🇳🇴", format: [3, 2, 3] },
+        { name: "Países Bajos", code: "31", flag: "🇳🇱", format: [1, 8] },
+        { name: "Bélgica", code: "32", flag: "🇧🇪", format: [3, 2, 2, 2] },
+        { name: "Irlanda", code: "353", flag: "🇮🇪", format: [2, 7] },
+        { name: "Dinamarca", code: "45", flag: "🇩🇰", format: [2, 2, 2, 2] },
+        { name: "Finlandia", code: "358", flag: "🇫🇮", format: [2, 7] },
+        { name: "Austria", code: "43", flag: "🇦🇹", format: [3, 7] },
+        { name: "Nueva Zelanda", code: "64", flag: "🇳🇿", format: [3, 3, 4] },
+        { name: "Sudáfrica", code: "27", flag: "🇿🇦", format: [2, 3, 4] },
+        { name: "Egipto", code: "20", flag: "🇪🇬", format: [3, 4, 4] },
+        { name: "Turquía", code: "90", flag: "🇹🇷", format: [3, 3, 4] },
+        { name: "Israel", code: "972", flag: "🇮🇱", format: [2, 3, 4] },
+        { name: "Singapur", code: "65", flag: "🇸🇬", format: [4, 4] },
+        { name: "Rep. Dominicana", code: "1809", flag: "🇩🇴", format: [3, 3, 4] }
+    ];
+    
+    function populateCountryCodes(selectId) {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        select.innerHTML = '';
+        countryCodes.forEach(country => {
+            const option = document.createElement('option');
+            option.value = country.code;
+            option.textContent = `${country.flag} +${country.code}`;
+            select.appendChild(option);
+        });
+        select.value = "507";
+    }
+
+    function showScreen(screenName) { Object.values(screens).forEach(screen => screen.classList.add('hidden')); screens[screenName]?.classList.remove('hidden'); }
+    
+    function updateLanguage() { 
+        currentLang = supportedLangs[currentLangIndex];
+        const t = translations[currentLang]; 
+        document.querySelectorAll('[data-translate]').forEach(el => { const key = el.getAttribute('data-translate'); if (t[key]) el.textContent = t[key]; }); 
+        document.querySelectorAll('[data-translate-placeholder]').forEach(el => { const key = el.getAttribute('data-translate-placeholder'); if (t[key]) el.placeholder = t[key]; }); 
+        document.documentElement.lang = currentLang; 
+        
+        document.querySelectorAll('#langToggle').forEach(btn => {
+            btn.textContent = currentLang.toUpperCase();
+        });
+        populateDateSelects();
+    }
+
+    function showConfetti() { if (typeof confetti === 'function') confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } }); }
+    function showLoader(loaderId, show = true) { const loader = document.getElementById(loaderId); loader.style.display = show ? 'flex' : 'none'; const button = loader.closest('.form-actions')?.querySelector('button'); if (button) button.style.display = show ? 'none' : 'block'; }
+    function showSuccess(title, detail, showConfettiAnimation = true) { document.getElementById('successTitle').textContent = title; document.getElementById('successDetail').textContent = detail; document.getElementById('successIcon').textContent = '🎉'; showScreen('success'); if (showConfettiAnimation) showConfetti(); }
+    function showError(detailKey) { const t = translations[currentLang]; document.getElementById('errorDetail').textContent = t[detailKey] || detailKey; showScreen('error'); }
+    async function submitData(formData, formElement) { const loaderId = formElement.id === 'regForm' ? 'registerLoader' : 'attendanceLoader'; showLoader(loaderId, true); if (!navigator.onLine) { saveForLater(formData, formElement); return; } try { const response = await fetch(SCRIPT_URL, { method: 'POST', mode: 'cors', cache: 'no-cache', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(formData) }); const result = await response.json(); if (result.success || result.name) { const t = translations[currentLang]; let title, detail; const gender = result.gender || formData.genero; if (formData.action === 'register') { title = result.registered ? t.welcomeBackTitle : t.successTitle; detail = result.registered ? t.registrationWelcomeBack : t.registrationSuccess; } else { title = t.welcomeBackTitle; detail = t.attendanceSuccess; } detail = detail.replace('{name}', result.name); if (currentLang === 'es' && gender) { if (gender.toUpperCase() === 'M') { detail = detail.replace(/Bienvenido\/a|Bienvenida/g, 'Bienvenido'); } else if (gender.toUpperCase() === 'F') { detail = detail.replace(/Bienvenido\/a|Bienvenida/g, 'Bienvenida'); } } showSuccess(title, detail); } else { showError('attendanceError'); } } catch (error) { console.error("Submit Error:", error); showError('attendanceError'); } finally { showLoader(loaderId, false); formElement.reset(); } }
+    function saveForLater(formData, formElement) { const queue = JSON.parse(localStorage.getItem('offlineQueue')) || []; queue.push(formData); localStorage.setItem('offlineQueue', JSON.stringify(queue)); const loaderId = formElement.id === 'regForm' ? 'registerLoader' : 'attendanceLoader'; showLoader(loaderId, false); formElement.reset(); const t = translations[currentLang]; document.getElementById('successIcon').textContent = '💾'; showSuccess(t.offlineTitle, t.offlineDetail, false); }
+    async function processOfflineQueue() { const queue = JSON.parse(localStorage.getItem('offlineQueue')) || []; if (navigator.onLine && queue.length > 0) { console.log(`Processing ${queue.length} offline items...`); const submissions = queue.map(formData => fetch(SCRIPT_URL, { method: 'POST', mode: 'cors', cache: 'no-cache', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(formData) }).catch(err => console.error('Failed to sync item:', err))); await Promise.all(submissions); localStorage.removeItem('offlineQueue'); console.log('Offline queue processed and cleared.'); } }
+    
+    function populateDateSelects() {
+        const daySelect = document.getElementById('birthDay');
+        const monthSelect = document.getElementById('birthMonth');
+        const yearSelect = document.getElementById('birthYear');
+        const t = translations[currentLang].dateSelects;
+
+        const currentDay = daySelect.value;
+        const currentMonth = monthSelect.value;
+        const currentYearVal = yearSelect.value;
+
+        yearSelect.innerHTML = `<option value="">${t.year}</option>`;
+        const currentYear = new Date().getFullYear();
+        for (let y = currentYear; y >= currentYear - 80; y--) {
+            yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
+        }
+
+        monthSelect.innerHTML = `<option value="">${t.month}</option>`;
+        const monthNames = {
+            es: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+            en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+            zh: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+            pt: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
+            ja: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
+            ko: ["1월", "2월", "3월", "4月", "5月", "6月", "7月", "8월", "9월", "10월", "11월", "12월"],
+            de: ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
+            ru: ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"]
+        }[currentLang];
+
+        monthNames.forEach((month, index) => {
+            monthSelect.innerHTML += `<option value="${index + 1}">${month}</option>`;
+        });
+
+        const year = parseInt(yearSelect.value, 10);
+        const month = parseInt(monthSelect.value, 10);
+        const daysInMonth = (year && month) ? new Date(year, month, 0).getDate() : 31;
+        
+        daySelect.innerHTML = `<option value="">${t.day}</option>`;
+        for (let d = 1; d <= daysInMonth; d++) {
+            daySelect.innerHTML += `<option value="${d}">${d}</option>`;
+        }
+
+        if(currentYearVal) yearSelect.value = currentYearVal;
+        if(currentMonth) monthSelect.value = currentMonth;
+        if(currentDay) daySelect.value = currentDay;
+    }
+
+    function formatPhoneNumber(input, countryCode) {
+        if (input.value.toUpperCase() === 'N/A') return;
+
+        const country = countryCodes.find(c => c.code === countryCode);
+        if (!country || !country.format) {
+            input.value = input.value.replace(/[^\d]/g, '');
+            return;
+        }
+
+        const format = country.format;
+        const maxLength = format.reduce((a, b) => a + b, 0);
+        
+        let digits = input.value.replace(/\D/g, '');
+        if (digits.length > maxLength) {
+            digits = digits.slice(0, maxLength);
+        }
+
+        const parts = [];
+        let start = 0;
+        for (const len of format) {
+            const part = digits.slice(start, start + len);
+            if (part.length > 0) {
+                parts.push(part);
+                start += len;
+            } else {
+                break;
+            }
+        }
+        input.value = parts.join('-');
+    }
+
+    document.getElementById('birthMonth').addEventListener('change', populateDateSelects);
+    document.getElementById('birthYear').addEventListener('change', populateDateSelects);
+
+    document.body.addEventListener('click', (e) => {
+        if (e.target.closest('#langToggle')) {
+            currentLangIndex = (currentLangIndex + 1) % supportedLangs.length;
+            updateLanguage();
+        }
+    });
+    
+    ['yesBtn', 'noBtn', 'backFromRegister', 'backFromAttendance', 'backToWelcome', 'backToWelcomeError'].forEach(id => { 
+        document.getElementById(id).addEventListener('click', (e) => {
+            e.preventDefault(); 
+            switch(id) { 
+                case 'yesBtn': showScreen('registration'); break; 
+                case 'noBtn': showScreen('attendance'); break; 
+                default: showScreen('welcome'); processOfflineQueue(); break; 
+            } 
+        }); 
+    });
+    document.getElementById('naBtnInvitedBy').addEventListener('click', () => { document.getElementById('invitedBy').value = 'N/A'; });
+    document.getElementById('naBtnPhone').addEventListener('click', () => { document.getElementById('phone').value = 'N/A'; });
+
+    document.getElementById('phone').addEventListener('input', (e) => {
+        formatPhoneNumber(e.target, document.getElementById('countryCode').value);
+    });
+    document.getElementById('countryCode').addEventListener('change', () => {
+        formatPhoneNumber(document.getElementById('phone'), document.getElementById('countryCode').value);
+    });
+    
+    document.getElementById('phoneCheck').addEventListener('input', (e) => {
+        formatPhoneNumber(e.target, document.getElementById('countryCodeCheck').value);
+    });
+    document.getElementById('countryCodeCheck').addEventListener('change', () => {
+        formatPhoneNumber(document.getElementById('phoneCheck'), document.getElementById('countryCodeCheck').value);
+    });
+
+    document.getElementById('regForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const day = document.getElementById('birthDay').value;
+        const month = document.getElementById('birthMonth').value;
+        const year = document.getElementById('birthYear').value;
+        if (!day || !month || !year) {
+            showError("Por favor, selecciona una fecha de nacimiento completa.");
+            return;
+        }
+        const birthDateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        const userEnteredAge = parseInt(document.getElementById('age').value, 10);
+        const birthDate = new Date(birthDateStr);
+        const today = new Date();
+        let calculatedAge = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < (birthDate.getDate() + 1))) {
+            calculatedAge--;
+        }
+        if (calculatedAge !== userEnteredAge) {
+            showError('ageMismatchError');
+            return; 
+        }
+        
+        const genderSelect = document.getElementById('gender');
+        const formattedPhone = document.getElementById('phone').value;
+        
+        pendingRegistrationData = {
+            action: 'register',
+            invitadoPor: document.getElementById('invitedBy').value,
+            nombreApellido: document.getElementById('fullName').value,
+            genero: genderSelect.value,
+            telefono: formattedPhone,
+            fechaNacimiento: birthDateStr,
+            edad: document.getElementById('age').value
+        };
+
+        document.getElementById('confirmName').textContent = pendingRegistrationData.nombreApellido;
+        document.getElementById('confirmGender').textContent = genderSelect.options[genderSelect.selectedIndex].text;
+        document.getElementById('confirmPhone').textContent = pendingRegistrationData.telefono;
+        document.getElementById('confirmBirthDate').textContent = `${day}/${month}/${year}`;
+        document.getElementById('confirmAge').textContent = pendingRegistrationData.edad;
+        document.getElementById('confirmInvitedBy').textContent = pendingRegistrationData.invitadoPor;
+        showScreen('confirmation');
+    });
+
+    document.getElementById('confirmYesBtn').addEventListener('click', () => {
+        if (pendingRegistrationData) {
+            showScreen('registration');
+            submitData(pendingRegistrationData, document.getElementById('regForm'));
+            pendingRegistrationData = null;
+        }
+    });
+
+    document.getElementById('confirmNoBtn').addEventListener('click', () => {
+        showScreen('registration');
+    });
+
+    document.getElementById('attForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const fullNameValue = document.getElementById('fullNameCheck').value;
+        const phoneValue = document.getElementById('phoneCheck').value;
+        submitData({ action: 'attendance', nombreApellido: fullNameValue, telefono: phoneValue }, e.target);
+    });
+    
+    window.addEventListener('online', processOfflineQueue);
+    
+    populateCountryCodes('countryCode');
+    populateCountryCodes('countryCodeCheck');
+    populateDateSelects();
+    updateLanguage();
+    showScreen('welcome');
+    processOfflineQueue();
+
+</script>
+</body>
+</html>
