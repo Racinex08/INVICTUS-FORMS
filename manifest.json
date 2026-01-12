@@ -1,0 +1,18 @@
+{
+  "name": "INVICTUS JUVENIL 2026",
+  "short_name": "Invictus",
+  "gcm_sender_id": "103953800507",
+  "description": "Sistema de registro y asistencia Invictus Juvenil",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3119/3119338.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
