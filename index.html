@@ -1227,6 +1227,20 @@
                 <input type="number" id="age" required min="1" max="99" oninput="this.value=this.value.slice(0,2)"
                     data-translate-placeholder="placeholderAge">
             </div>
+            <div class="form-group">
+                <label data-translate="labelChurchQuestion">¿Asistes a otra iglesia?</label>
+                <div class="church-buttons" style="display: flex; gap: 10px; margin-top: 5px;">
+                    <button type="button" class="btn-secondary" id="churchYesBtn" data-translate="churchYes"
+                        style="flex: 1;">Sí</button>
+                    <button type="button" class="btn-secondary" id="churchNoBtn" data-translate="churchNo"
+                        style="flex: 1;">No</button>
+                </div>
+                <input type="hidden" id="asisteOtraIglesia" value="" required>
+            </div>
+            <div class="form-group hidden" id="churchNameGroup">
+                <label for="churchName" data-translate="labelChurchName">Nombre de la Iglesia:</label>
+                <input type="text" id="churchName" data-translate-placeholder="placeholderChurchName">
+            </div>
             <div class="form-actions">
                 <button type="submit" class="btn-primary" id="registerBtn" data-translate="registerBtnText">🚀
                     ¡Registrarme!</button>
@@ -1313,6 +1327,10 @@
             <p><strong data-translate="labelBirthDate"></strong> <span id="confirmBirthDate"></span></p>
             <p><strong data-translate="labelAge"></strong> <span id="confirmAge"></span></p>
             <p><strong data-translate="labelInvitedBy"></strong> <span id="confirmInvitedBy"></span></p>
+            <p><strong data-translate="labelChurchQuestion"></strong> <span id="confirmChurch"></span></p>
+            <div id="confirmChurchNameContainer" class="hidden">
+                <p><strong data-translate="labelChurchName"></strong> <span id="confirmChurchName"></span></p>
+            </div>
         </div>
         <div class="confirmation-actions">
             <button class="btn-secondary" id="confirmNoBtn" data-translate="confirmNo">No, corregir</button>
@@ -1364,7 +1382,7 @@
         firebase.initializeApp(firebaseConfig);
         const messaging = firebase.messaging();
 
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyR-PBjbDR47hj5mP5e3ubYfn_QXJxPxjKAg6ciXFmsnTXtuzPu7BUGOsS53Bl06DCNKQ/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyK2UwJVMATG69bfJgvYe5e8Py9j1mLDk-SCYNMWQyqMzfo23YuWzqLlWPO2w6kqSayrA/exec";
 
         const translations = {
             es: {
@@ -1397,8 +1415,10 @@
                 backToWelcomeErrorText: "🏠 Volver al Inicio",
                 registrationSuccess: "¡Felicidades y Bienvenido a Invictus Juvenil! Dios te bendiga {name}. ✨\n\n📖 Jeremías 29:11 - 'Porque yo sé los pensamientos que tengo acerca de vosotros, dice Jehová, pensamientos de paz, y no de mal, para daros el fin que esperáis.'",
                 registrationWelcomeBack: "¡Qué alegría verte de nuevo, {name}! Tu asistencia ha sido marcada.",
-                attendanceSuccess: "¡Qué bueno verte de nuevo, Dios te bendiga {name}! 🤗\n\n📖 Filipenses 4:13 - 'Todo lo puedo en Cristo que me fortalece.'",
                 attendanceError: "No pudimos encontrar una coincidencia. Por favor, verifica tus datos o regístrate si es tu primera vez.",
+                submissionError: "Hubo un error al procesar tu solicitud. Por favor intenta de nuevo.",
+                registrationError: "No pudimos completar tu registro. Por favor verifica los datos e intenta de nuevo.",
+                not_found: "No pudimos encontrar tu registro. Por favor verifica el nombre o regístrate.",
                 offlineTitle: "Registro Guardado 💾",
                 offlineDetail: "No tienes conexión a internet. Guardamos tus datos y los enviaremos automáticamente cuando te conectes. ¡Nos vemos!",
                 syncNotification: "Se enviaron tus registros pendientes. ¡Gracias!",
@@ -1408,6 +1428,11 @@
                 placeholderAge: "18",
                 placeholderFullNameCheck: "El nombre con el que te registraste",
                 placeholderPhoneCheck: "Opcional, para ser más preciso",
+                labelChurchQuestion: "¿Asistes a otra iglesia?",
+                churchYes: "Sí",
+                churchNo: "No",
+                labelChurchName: "Nombre de la Iglesia:",
+                placeholderChurchName: "¿Cómo se llama?",
                 confirmTitle: "Verifica tu Información",
                 confirmSubtitle: "¿Están correctos estos datos?",
                 confirmYes: "Sí, registrar",
@@ -1444,8 +1469,10 @@
                 backToWelcomeErrorText: "🏠 Back to Start",
                 registrationSuccess: "Welcome to the family, {name}! God has great plans for you ✨",
                 registrationWelcomeBack: "So glad to see you again, {name}! Your attendance has been marked.",
-                attendanceSuccess: "God loves you, {name}! We're glad to see you again 🤗",
                 attendanceError: "We couldn't find a match. Please check your data or register if it's your first time.",
+                submissionError: "There was an error processing your request. Please try again.",
+                registrationError: "We couldn't complete your registration. Please check your data and try again.",
+                not_found: "We couldn't find your registration. Please check the name or register.",
                 offlineTitle: "Registration Saved 💾",
                 offlineDetail: "You are currently offline. We've saved your data and will send it automatically when you're back online. See you!",
                 syncNotification: "Your pending registrations have been sent. Thank you!",
@@ -1455,6 +1482,11 @@
                 placeholderAge: "18",
                 placeholderFullNameCheck: "The name you registered with",
                 placeholderPhoneCheck: "Optional, for a precise match",
+                labelChurchQuestion: "Do you attend another church?",
+                churchYes: "Yes",
+                churchNo: "No",
+                labelChurchName: "Church Name:",
+                placeholderChurchName: "What is its name?",
                 confirmTitle: "Verify Your Information",
                 confirmSubtitle: "Is this data correct?",
                 confirmYes: "Yes, register",
@@ -1847,7 +1879,12 @@
             showScreen('success');
             if (showConfettiAnimation) showConfetti();
         }
-        function showError(detailKey) { const t = translations[currentLang]; document.getElementById('errorDetail').textContent = t[detailKey] || detailKey; showScreen('error'); }
+        function showError(detailKey) {
+            console.error("Error Detail Key:", detailKey);
+            const t = translations[currentLang];
+            document.getElementById('errorDetail').textContent = t[detailKey] || detailKey;
+            showScreen('error');
+        }
         async function submitData(formData, formElement) {
             const loaderId = formElement.id === 'regForm' ? 'registerLoader' : 'attendanceLoader';
             showLoader(loaderId, true);
@@ -1877,8 +1914,8 @@
                         title = t.successTitle;
                         detail = t.registrationSuccess;
 
-                        // La App genera la notificación del conector
-                        const notifMsg = `🔔 A ${formData.conector} se le asignó como conector a ${result.name}`;
+                        // La App genera la notificación del conector (asignado por el backend)
+                        const notifMsg = `🔔 A ${result.conector} se le asignó como conector a ${result.name}`;
 
                         // Disparar notificaciones locales inmediatas
                         showPushNotification(notifMsg);
@@ -1888,7 +1925,7 @@
                             method: 'POST',
                             mode: 'cors',
                             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                            body: JSON.stringify({ action: 'addNotification', mensaje: notifMsg })
+                            body: JSON.stringify({ action: 'addNotification', mensaje: notifMsg, fecha: new Date().toISOString() })
                         }).then(() => fetchNotifications());
 
                     } else {
@@ -1907,7 +1944,7 @@
                                 method: 'POST',
                                 mode: 'cors',
                                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                                body: JSON.stringify({ action: 'addNotification', mensaje: notifMsg })
+                                body: JSON.stringify({ action: 'addNotification', mensaje: notifMsg, fecha: new Date().toISOString() })
                             }).then(() => fetchNotifications());
                         }
                     }
@@ -1925,11 +1962,13 @@
 
                     showSuccess(title, detail);
                 } else {
-                    showError('attendanceError');
+                    const defaultError = (formData.action === 'register') ? 'registrationError' : 'attendanceError';
+                    showError(result.error || defaultError);
                 }
             } catch (error) {
                 console.error("Submit Error:", error);
-                showError('attendanceError');
+                const defaultError = (formData.action === 'register') ? 'registrationError' : 'attendanceError';
+                showError(defaultError);
             } finally {
                 showLoader(loaderId, false);
                 formElement.reset();
@@ -2052,8 +2091,26 @@
             formatPhoneNumber(document.getElementById('phoneCheck'), document.getElementById('countryCodeCheck').value);
         });
 
-        const CONECTORES_HOMBRES = ["Ángel", "José F."];
-        const CONECTORES_MUJERES = ["Gabriela", "Vivian"];
+        document.getElementById('churchYesBtn').addEventListener('click', () => {
+            document.getElementById('asisteOtraIglesia').value = 'SÍ';
+            document.getElementById('churchNameGroup').classList.remove('hidden');
+            document.getElementById('churchYesBtn').classList.remove('btn-secondary');
+            document.getElementById('churchYesBtn').classList.add('btn-primary');
+            document.getElementById('churchNoBtn').classList.remove('btn-primary');
+            document.getElementById('churchNoBtn').classList.add('btn-secondary');
+            document.getElementById('churchName').required = true;
+        });
+
+        document.getElementById('churchNoBtn').addEventListener('click', () => {
+            document.getElementById('asisteOtraIglesia').value = 'N/A';
+            document.getElementById('churchName').value = 'N/A';
+            document.getElementById('churchNameGroup').classList.add('hidden');
+            document.getElementById('churchNoBtn').classList.remove('btn-secondary');
+            document.getElementById('churchNoBtn').classList.add('btn-primary');
+            document.getElementById('churchYesBtn').classList.remove('btn-primary');
+            document.getElementById('churchYesBtn').classList.add('btn-secondary');
+            document.getElementById('churchName').required = false;
+        });
 
         document.getElementById('regForm').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -2083,10 +2140,6 @@
             const genderSelect = document.getElementById('gender');
             const formattedPhone = document.getElementById('phone').value;
 
-            // Asignación de conector en la App
-            const lista = (genderSelect.value === 'F') ? CONECTORES_MUJERES : CONECTORES_HOMBRES;
-            const conectorAsignado = lista[Math.floor(Math.random() * lista.length)];
-
             pendingRegistrationData = {
                 action: 'register',
                 invitadoPor: document.getElementById('invitedBy').value,
@@ -2095,7 +2148,8 @@
                 telefono: formattedPhone,
                 fechaNacimiento: birthDateStr,
                 edad: document.getElementById('age').value,
-                conector: conectorAsignado
+                asisteOtraIglesia: document.getElementById('asisteOtraIglesia').value,
+                iglesiaNombre: document.getElementById('churchName').value
             };
 
             document.getElementById('confirmName').textContent = pendingRegistrationData.nombreApellido;
@@ -2104,6 +2158,16 @@
             document.getElementById('confirmBirthDate').textContent = `${day}/${month}/${year}`;
             document.getElementById('confirmAge').textContent = pendingRegistrationData.edad;
             document.getElementById('confirmInvitedBy').textContent = pendingRegistrationData.invitadoPor;
+            document.getElementById('confirmChurch').textContent = pendingRegistrationData.asisteOtraIglesia;
+
+            const churchContainer = document.getElementById('confirmChurchNameContainer');
+            if (pendingRegistrationData.asisteOtraIglesia === 'SÍ') {
+                churchContainer.classList.remove('hidden');
+                document.getElementById('confirmChurchName').textContent = pendingRegistrationData.iglesiaNombre;
+            } else {
+                churchContainer.classList.add('hidden');
+            }
+
             showScreen('confirmation');
         });
 
@@ -2150,39 +2214,48 @@
         });
 
         async function requestNotificationPermission() {
-            // Verificación silenciosa para evitar alertas molestas
             if (!("Notification" in window)) {
                 console.log("Este navegador no soporta notificaciones");
                 return;
             }
 
-            // Solicitud explícita de permiso
+            // 1. LIMPIEZA PROFUNDA: Desinstalamos cualquier Service Worker viejo
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (let registration of registrations) {
+                    await registration.unregister();
+                }
+                console.log("🧹 Limpieza de SW completada.");
+            }
+
+            // 2. Solicitud de permiso
             const permission = await Notification.requestPermission();
 
             if (permission === 'granted') {
                 try {
-                    // Esperamos a que el SW esté listo para evitar errores de "archivo no encontrado"
-                    const registration = await navigator.serviceWorker.ready;
+                    // 3. Registro LIMPIO desde cero
+                    const registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js', { scope: './' });
+                    console.log("✅ SW registrado de nuevo:", registration);
 
-                    // Pasamos el registro explícitamente a Firebase
+                    // Esperamos un momento para que se active
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+
+                    // 4. Obtención del Token
                     const token = await messaging.getToken({
                         vapidKey: 'BPxkBjQpzAhPJ0T-8_XiTGqzKZ5JjBGBN5eLn1S8yM92MKVHHg3RYReMlR6pUEbQDfAS_wax2pQrzx0JSqZ7kxE',
                         serviceWorkerRegistration: registration
                     });
 
                     console.log('FCM Token:', token);
-                    alert("✅ ¡Alertas activadas correctamente! El celular vibrará cuando haya avisos.");
+                    alert("✅ ¡AHORA SÍ! Sistema reseteado y alertas activadas.");
                     document.getElementById('activateNotifBtn').style.display = 'none';
+
                 } catch (err) {
-                    console.error('Error Firebase Detalle:', err);
-                    if (err.toString().includes("Failed to fetch") || err.toString().includes("network")) {
-                        alert("⚠️ BLOQUEO DE RED DETECTADO ⚠️\n\n1. NO uses Modo Incógnito/Privado (Google lo bloquea).\n2. Desactiva AdBlock si tienes.\n3. Prueba con Datos Móviles (a veces el WiFi bloquea puertos).");
-                    } else {
-                        alert("⚠️ Error técnico: " + (err.message || err) + ". \nRevisa que los 3 archivos estén en la misma carpeta en GitHub.");
-                    }
+                    console.error('Error Final:', err);
+                    alert("⚠️ Error: " + err.message + "\n\nPrueba borrando los datos del sitio en Chrome (Candado 🔒 -> Cookies y datos del sitio -> Borrar).");
                 }
             } else {
-                alert("🚫 Necesitamos tu permiso para avisarte. Por favor, dale a 'Permitir' cuando te pregunte.");
+                alert("🚫 Permiso denegado. Tienes que ir a Configuración del sitio y permitir Notificaciones manualmente.");
             }
         }
 
@@ -2228,6 +2301,38 @@
         }
 
         async function fetchNotifications() {
+            function formatSmartDate(dateStr) {
+                if (!dateStr) return '';
+                const d = new Date(dateStr);
+                if (isNaN(d.getTime())) return '';
+
+                const now = new Date();
+                const options = { timeZone: 'America/Panama' };
+
+                // Normalizar "Hoy" y "Ayer" en zona horaria de Panamá
+                const toPanamaDateStr = (date) => date.toLocaleDateString('en-CA', options); // YYYY-MM-DD
+
+                const dStr = toPanamaDateStr(d);
+                const nowStr = toPanamaDateStr(now);
+
+                const yesterday = new Date(now);
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayStr = toPanamaDateStr(yesterday);
+
+                const timeStr = d.toLocaleTimeString('es-PA', { ...options, hour: '2-digit', minute: '2-digit', hour12: true });
+
+                if (dStr === nowStr) {
+                    return `Hoy - ${timeStr}`;
+                } else if (dStr === yesterdayStr) {
+                    return `Ayer - ${timeStr}`;
+                } else {
+                    // Formato completo: Ej. "Lunes, 12 Ene 2026 - 10:30 p. m."
+                    // El usuario pidió "dia fecha y año y hora".
+                    const datePart = d.toLocaleDateString('es-PA', { ...options, weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
+                    return `${datePart} - ${timeStr}`;
+                }
+            }
+
             try {
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
@@ -2248,6 +2353,7 @@
 
                     notifItems.innerHTML = result.notifications.map((n) => `
                         <div class="notification-item" style="font-size: 13px; padding: 10px 0; border-bottom: 1px solid #f9f9f9; line-height: 1.4; color: #444; text-align: left; position: relative;">
+                            <small style="display:block; color:#999; margin-bottom:2px; font-size:11px; font-weight:bold;">${formatSmartDate(n.fecha)}</small>
                             <span style="display: block; padding-right: 25px;">${n.mensaje}</span>
                             <button onclick="removeNotification('${n.mensaje}', this.parentElement)" style="position: absolute; top: 10px; right: 0; background: none; border: none; color: #bbb; cursor: pointer; font-size: 16px; padding: 0 5px;">✕</button>
                         </div>
