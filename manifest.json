@@ -3,11 +3,19 @@
   "short_name": "Invictus",
   "gcm_sender_id": "103953800507",
   "description": "Sistema de registro y asistencia Invictus Juvenil",
-  "start_url": "./index.html",
+  "start_url": "/INVICTUS-FORMS/index.html",
+  "scope": "/INVICTUS-FORMS/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#2563eb",
   "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3119/3119338.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3119/3119338.png",
       "sizes": "512x512",
@@ -16,3 +24,4 @@
     }
   ]
 }
+
