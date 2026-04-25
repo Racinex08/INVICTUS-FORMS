@@ -872,6 +872,82 @@
                 transform: translate(60px, -32px) translateZ(0);
             }
         }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .dashboard-container {
+            max-width: 800px;
+            width: 95%;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .newcomer-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--primary-color);
+        }
+        .whatsapp-btn {
+            background: #25D366;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none;
+            font-size: 1.2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
 
         /* --- INICIO ESTILOS NUEVO LOADER --- */
         .loader-svg {
@@ -1095,9 +1171,18 @@
 
         /* --- FIN ESTILOS NUEVO LOADER --- */
     </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
+    <!-- Botón de Historial (Flotante) -->
+    <div style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
+        <div id="historyBtn"
+            style="background: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.2s;">
+            <span style="font-size: 24px;">📋</span>
+        </div>
+    </div>
+
 
     <!-- Centro de Notificaciones -->
     <div id="notificationCenter" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
@@ -1129,6 +1214,7 @@
 
     <!-- Pantalla de Bienvenida -->
     <div class="container" id="welcomeScreen">
+        
         <button id="langToggle">ES</button>
         <div class="logo">INVICTUS JUVENIL</div>
         <p class="subtitle" data-translate="welcomeTitle">¿Es tu Primera Vez en INVICTUS JUVENIL? 🤔</p>
@@ -1172,6 +1258,7 @@
 
     <!-- Formulario de Registro -->
     <div class="container hidden" id="registrationForm">
+        
         <button id="langToggle">ES</button>
         <button class="back-button-styled" id="backFromRegister">
             <span class="button-bg">
@@ -1195,7 +1282,7 @@
                 <button type="button" class="na-btn" id="naBtnInvitedBy" data-translate="naBtn">No aplica</button>
             </div>
             <div class="form-group">
-                <label for="fullName" data-translate="labelFullName">🏷️ Nombre y Apellido</label>
+                <label for="fullName" data-translate="labelFullName">🏷️ Nombre</label>
                 <input type="text" id="fullName" required data-translate-placeholder="placeholderFullName">
             </div>
             <div class="form-group">
@@ -1265,6 +1352,7 @@
 
     <!-- Formulario de Asistencia -->
     <div class="container hidden" id="attendanceForm">
+        
         <button id="langToggle">ES</button>
         <button class="back-button-styled" id="backFromAttendance">
             <span class="button-bg">
@@ -1283,7 +1371,7 @@
         <p class="subtitle" data-translate="attSubtitle">¡Qué bueno verte de nuevo! 😊</p>
         <form id="attForm">
             <div class="form-group">
-                <label for="fullNameCheck" data-translate="labelFullNameCheck">🏷️ Nombre y Apellido</label>
+                <label for="fullNameCheck" data-translate="labelFullNameCheck">🏷️ Nombre</label>
                 <input type="text" id="fullNameCheck" required data-translate-placeholder="placeholderFullNameCheck">
             </div>
             <div class="form-group">
@@ -1317,6 +1405,7 @@
 
     <!-- Pantalla de Confirmación de Datos -->
     <div class="container hidden" id="confirmationScreen">
+        
         <button id="langToggle">ES</button>
         <h2 data-translate="confirmTitle">Verifica tu Información</h2>
         <p class="subtitle" data-translate="confirmSubtitle">¿Están correctos estos datos?</p>
@@ -1340,6 +1429,7 @@
 
     <!-- Mensaje de Éxito -->
     <div class="container hidden" id="successMessage">
+        
         <button id="langToggle">ES</button>
         <div class="status-message success-message">
             <span class="status-icon" id="successIcon">🎉</span>
@@ -1352,6 +1442,7 @@
 
     <!-- Mensaje de Error -->
     <div class="container hidden" id="errorMessage">
+        
         <button id="langToggle">ES</button>
         <div class="status-message error-message">
             <span class="status-icon">😔</span>
@@ -1382,7 +1473,7 @@
         firebase.initializeApp(firebaseConfig);
         const messaging = firebase.messaging();
 
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyK2UwJVMATG69bfJgvYe5e8Py9j1mLDk-SCYNMWQyqMzfo23YuWzqLlWPO2w6kqSayrA/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyuth_wIkQ6HQl4kfyZncY03-QNFGfGIwKpZyt7XroyLEcxu6IbswtxQDGzta4MVOmLlg/exec";
 
         const translations = {
             es: {
@@ -1392,7 +1483,7 @@
                 regSubtitle: "¡Bienvenido a la familia INVICTUS! 🤗",
                 labelInvitedBy: "👥 Invitado Por",
                 naBtn: "No aplica",
-                labelFullName: "🏷️ Nombre y Apellido:",
+                labelFullName: "🏷️ Nombre:",
                 labelGender: "♀️♂️ Género:",
                 genderDefault: "Selecciona...",
                 genderM: "👨 Masculino",
@@ -1403,7 +1494,7 @@
                 registerBtnText: "🚀 ¡Registrarme!",
                 registerLoaderText: "Procesando la Información...",
                 attSubtitle: "¡Qué bueno verte de nuevo! 😊",
-                labelFullNameCheck: "🏷️ Nombre y Apellido:",
+                labelFullNameCheck: "🏷️ Nombre:",
                 labelPhoneCheck: "📱 Tu Número de Teléfono (Opcional)",
                 checkBtnText: "🔍 Verificar Asistencia",
                 attendanceLoaderText: "Procesando la Información... ",
@@ -1415,6 +1506,7 @@
                 backToWelcomeErrorText: "🏠 Volver al Inicio",
                 registrationSuccess: "¡Felicidades y Bienvenido a Invictus Juvenil! Dios te bendiga {name}. ✨\n\n📖 Jeremías 29:11 - 'Porque yo sé los pensamientos que tengo acerca de vosotros, dice Jehová, pensamientos de paz, y no de mal, para daros el fin que esperáis.'",
                 registrationWelcomeBack: "¡Qué alegría verte de nuevo, {name}! Tu asistencia ha sido marcada.",
+                attendanceSuccess: "¡Qué alegría verte de nuevo, {name}! Tu asistencia ha sido marcada. ¡Que Dios bendiga tu vida grandemente hoy! 🎉✨",
                 attendanceError: "No pudimos encontrar una coincidencia. Por favor, verifica tus datos o regístrate si es tu primera vez.",
                 submissionError: "Hubo un error al procesar tu solicitud. Por favor intenta de nuevo.",
                 registrationError: "No pudimos completar tu registro. Por favor verifica los datos e intenta de nuevo.",
@@ -1423,7 +1515,7 @@
                 offlineDetail: "No tienes conexión a internet. Guardamos tus datos y los enviaremos automáticamente cuando te conectes. ¡Nos vemos!",
                 syncNotification: "Se enviaron tus registros pendientes. ¡Gracias!",
                 placeholderInvitedBy: "¿Quién te invitó?",
-                placeholderFullName: "Tu nombre completo",
+                placeholderFullName: "Tu nombre",
                 placeholderPhone: "0000-0000",
                 placeholderAge: "18",
                 placeholderFullNameCheck: "El nombre con el que te registraste",
@@ -2192,6 +2284,226 @@
 
         window.addEventListener('online', processOfflineQueue);
 
+        
+        // --- LOGICA DE HISTORIAL Y DASHBOARD ---
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        document.getElementById('historyBtn').addEventListener('click', () => {
+            document.getElementById('pinInput').value = '';
+            document.getElementById('pinError').style.display = 'none';
+            openModal('pinModal');
+        });
+
+        function verifyPin() {
+            const pin = document.getElementById('pinInput').value;
+            if (pin === 'JesusRey') {
+                closeModal('pinModal');
+                openModal('historyMenuModal');
+            } else {
+                document.getElementById('pinError').style.display = 'block';
+            }
+        }
+
+
+        let chartGender = null;
+        let chartConnector = null;
+        let personas3ra = [];
+
+        function animateCount(el, target, dur=1000) {
+            if (!el) return;
+            const start = performance.now();
+            (function step(now) {
+                const p = Math.min((now - start) / dur, 1);
+                const ease = 1 - Math.pow(1 - p, 3);
+                el.textContent = Math.floor(ease * target);
+                if (p < 1) requestAnimationFrame(step);
+                else el.textContent = target;
+            })(start);
+        }
+
+        function setDefaultFilter() {
+            const now = new Date();
+            const mesEl = document.getElementById('filterMes');
+            const añoEl = document.getElementById('filterAño');
+            if (mesEl) mesEl.value = String(now.getMonth() + 1);
+            if (añoEl) añoEl.value = String(now.getFullYear());
+        }
+
+        function openDashboard() {
+            closeModal('historyMenuModal');
+            openModal('dashboardModal');
+            setDefaultFilter();
+            applyDashFilter(); // carga con el mes/año actual y actualiza el label
+        }
+
+        function applyDashFilter() {
+            const mes = document.getElementById('filterMes').value;
+            const año = document.getElementById('filterAño').value;
+            const meses = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+            document.getElementById('periodoLabel').textContent = `Mostrando: ${meses[parseInt(mes)]} ${año}`;
+            fetchDashboard({ mes, año });
+        }
+
+        function clearDashFilter() {
+            document.getElementById('periodoLabel').textContent = 'Mostrando: últimos 7 días';
+            fetchDashboard({ semana: true });
+        }
+
+        function fetchDashboard(params) {
+            document.getElementById('dashLoading').style.display = 'block';
+            document.getElementById('dashboardContent').style.display = 'none';
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'getNewcomers', ...params })
+            })
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('dashLoading').style.display = 'none';
+                document.getElementById('dashboardContent').style.display = 'flex';
+
+                // ── MÉTRICAS GLOBALES (todos los tiempos) ─────────────────
+                const nuevos       = data.nuevos           || [];
+                const totalGlobal  = data.totalGlobal      || 0;
+                const globalH      = data.globalHombres    || 0;
+                const globalM      = data.globalMujeres    || 0;
+                const totalIgles   = data.totalIglesia     || 0;
+                const total3raVal  = data.total3ra         || 0;
+                const connGlobal   = data.conectoresGlobal || {};
+                personas3ra        = data.personas3ra      || [];
+
+                // Tarjetas con valores reales históricos
+                animateCount(document.getElementById('totalRegistrados'),  totalGlobal);
+                animateCount(document.getElementById('totalNuevosSemana'), nuevos.length);
+                animateCount(document.getElementById('totalHombres'),      globalH);
+                animateCount(document.getElementById('totalMujeres'),      globalM);
+                animateCount(document.getElementById('totalIglesia'),      totalIgles);
+                animateCount(document.getElementById('total3ra'),          total3raVal);
+
+
+                // ── Función para recrear un canvas limpio ──────────────
+                function freshCanvas(id, parentSelector) {
+                    const old = document.getElementById(id);
+                    if (!old) return null;
+                    const parent = old.parentElement;
+                    old.remove();
+                    const c = document.createElement('canvas');
+                    c.id = id;
+                    parent.appendChild(c);
+                    return c;
+                }
+
+                // ── DONUT: Distribución de género (global) ────────────
+                if (chartGender) { chartGender.destroy(); chartGender = null; }
+                const gCanvas = freshCanvas('genderChart');
+                if (gCanvas && (globalH + globalM) > 0) {
+                    chartGender = new Chart(gCanvas, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['👨 Masculino', '👩 Femenino'],
+                            datasets: [{ data: [globalH, globalM],
+                                backgroundColor: ['#0d6efd', '#fd7e14'], borderWidth: 0 }]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            animation: { animateRotate: true, duration: 1500, easing: 'easeOutQuart' },
+                            plugins: { legend: { position: 'bottom' } }
+                        }
+                    });
+                }
+
+                // ── BARRAS: Personas por conector (global) ────────────
+                const connLabels = Object.keys(connGlobal);
+                const connData   = Object.values(connGlobal);
+                const barColors  = ['#007bff','#6610f2','#28a745','#fd7e14','#dc3545','#20c997','#ffc107'];
+                if (chartConnector) { chartConnector.destroy(); chartConnector = null; }
+                const cCanvas = freshCanvas('connectorChart');
+                if (cCanvas && connLabels.length > 0) {
+                    chartConnector = new Chart(cCanvas, {
+                        type: 'bar',
+                        data: {
+                            labels: connLabels,
+                            datasets: [{ label: 'Personas', data: connData,
+                                backgroundColor: connLabels.map((_, i) => barColors[i % barColors.length]),
+                                borderRadius: 8, borderSkipped: false }]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            animation: { duration: 1500, easing: 'easeOutQuart' },
+                            plugins: { legend: { display: false } },
+                            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                        }
+                    });
+                }
+
+                // ── LISTA DE NUEVOS (filtrada por período) ────────────────
+                const dashNuevos = document.getElementById('dashNuevos');
+                if (nuevos.length === 0) {
+                    dashNuevos.innerHTML = '<p style="color:#888;text-align:center;padding:20px 0;">No hay registros en este período.<br><small>Selecciona otro mes/año o toca "Esta semana".</small></p>';
+                } else {
+                    dashNuevos.innerHTML = nuevos.map(n => `
+                        <div style="background:white;border-radius:10px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;border-left:4px solid #007bff;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+                            <div style="flex:1;min-width:0;">
+                                <strong style="font-size:0.95rem;">${n.nombre}</strong>
+                                <div style="font-size:0.78rem;color:#555;margin-top:3px;">
+                                    ${n.sexo === 'M' ? '👨 Masc.' : '👩 Fem.'} &nbsp;|&nbsp; 🔗 ${n.conector || '—'}
+                                </div>
+                                <div style="font-size:0.78rem;color:#777;">
+                                    ⛪ ${(n.asisteIglesia && n.asisteIglesia !== 'N/A' && n.asisteIglesia !== 'No') ? 'Sí — '+(n.iglesiaNombre||'') : 'No'} &nbsp;|&nbsp; 👥 ${n.invitadoPor || 'N/A'}
+                                </div>
+                            </div>
+                            <a href="https://wa.me/${(n.telefono||'').replace(/[^\d]/g,'')}" target="_blank" class="whatsapp-btn" style="width:38px;height:38px;font-size:1.1rem;flex-shrink:0;margin-left:10px;">💬</a>
+                        </div>
+                    `).join('');
+                }
+            })
+            .catch(e => {
+                document.getElementById('dashLoading').style.display = 'none';
+                document.getElementById('dashboardContent').style.display = 'flex';
+                document.getElementById('dashNuevos').innerHTML = '<p style="color:red;text-align:center;">Error al cargar datos.</p>';
+                console.error('Dashboard error:', e);
+            });
+        }
+
+        function openNewcomers() {
+            closeModal('historyMenuModal');
+            openModal('newcomersModal');
+            const list = document.getElementById('newcomersList');
+            list.innerHTML = '<div style="text-align:center;"><p>Cargando datos...</p></div>';
+            
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'getNewcomers' })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.nuevos && data.nuevos.length > 0) {
+                    list.innerHTML = data.nuevos.map(n => `
+                        <div class="newcomer-card" style="display:flex; flex-direction:column; align-items:flex-start;">
+                            <div style="display:flex; justify-content:space-between; width:100%; align-items:center; border-bottom:1px solid #ebebeb; padding-bottom:8px; margin-bottom:8px;">
+                                <h4 style="margin:0;">${n.nombre}</h4>
+                                <a href="https://wa.me/${(n.telefono || '').replace(/[^\d]/g, '')}" target="_blank" class="whatsapp-btn" style="width:35px; height:35px; font-size:1.1rem;">💬</a>
+                            </div>
+                            <small style="color:#555; margin-bottom: 2px;"><strong>Asociado (Conector):</strong> ${n.conector}</small>
+                            <small style="color:#555; margin-bottom: 2px;"><strong>Invitado por:</strong> ${n.invitadoPor || 'N/A'}</small>
+                            <small style="color:#555; margin-bottom: 2px;"><strong>Sexo:</strong> ${n.sexo === 'M' ? '👨 Masculino' : (n.sexo === 'F' ? '👩 Femenino' : 'N/A')}</small>
+                            <small style="color:#555; margin-bottom: 2px;"><strong>Asiste a Iglesia:</strong> ${n.asisteIglesia === 'SÍ' ? 'Sí, a ' + (n.iglesiaNombre || '') : 'No'}</small>
+                        </div>
+                    `).join('');
+                } else {
+                    list.innerHTML = '<p>No hay nuevos registrados en los últimos 7 días.</p>';
+                }
+            }).catch(e => {
+                list.innerHTML = '<p>Error cargando los datos. Por favor revisa la conexión.</p>';
+                console.error("Fetch Error:", e);
+            });
+        }
+
         // --- LÓGICA DE NOTIFICACIONES PUSH & AUTOMÁTICAS ---
         const bellBtn = document.getElementById('bellBtn');
         const notifList = document.getElementById('notifList');
@@ -2219,13 +2531,15 @@
                 return;
             }
 
-            // 1. LIMPIEZA PROFUNDA: Desinstalamos cualquier Service Worker viejo
+            // Solo limpia SWs si es necesario (no limpiar el del PWA)
             if ('serviceWorker' in navigator) {
                 const registrations = await navigator.serviceWorker.getRegistrations();
-                for (let registration of registrations) {
-                    await registration.unregister();
+                // Solo desregistrar SWs que no sean el del PWA actual
+                for (let reg of registrations) {
+                    if (!reg.scope.includes('INVICTUS-FORMS') && !reg.scope.includes('localhost')) continue;
+                    // No desregistrar, solo actualizar
                 }
-                console.log("🧹 Limpieza de SW completada.");
+                console.log('🔔 Verificando SW para notificaciones...');
             }
 
             // 2. Solicitud de permiso
@@ -2233,9 +2547,9 @@
 
             if (permission === 'granted') {
                 try {
-                    // 3. Registro LIMPIO desde cero
-                    const registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js', { scope: './' });
-                    console.log("✅ SW registrado de nuevo:", registration);
+                    // Registro del SW para notificaciones
+                    const registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js');
+                    console.log('✅ SW registrado:', registration.scope);
 
                     // Esperamos un momento para que se active
                     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -2247,23 +2561,25 @@
                     });
 
                     console.log('FCM Token:', token);
-                    alert("✅ ¡AHORA SÍ! Sistema reseteado y alertas activadas.");
+                    console.log('✅ Alertas activadas correctamente.');
                     document.getElementById('activateNotifBtn').style.display = 'none';
+                    
+                    // Enviar notificación de bienvenida
+                    showPushNotification("¡Notificaciones activadas exitosamente! 🎉 Te avisaremos cuando lleguen nuevos.");
 
                 } catch (err) {
                     console.error('Error Final:', err);
-                    alert("⚠️ Error: " + err.message + "\n\nPrueba borrando los datos del sitio en Chrome (Candado 🔒 -> Cookies y datos del sitio -> Borrar).");
+                    console.error('⚠️ Error activando alertas:', err.message);
                 }
             } else {
-                alert("🚫 Permiso denegado. Tienes que ir a Configuración del sitio y permitir Notificaciones manualmente.");
+                console.warn('🚫 Permiso de notificaciones denegado.');
             }
         }
 
-        // Registro de Service Worker ROBUSTO para GitHub Pages y APK
+        // Registro del Service Worker para PWA + Notificaciones
         if ('serviceWorker' in navigator) {
-            // Usamos ruta relativa ./ para asegurar que cargue en subcarpetas de GitHub
-            navigator.serviceWorker.register('./firebase-messaging-sw.js', { scope: './' })
-                .then((reg) => console.log('✅ Firebase SW Registrado con éxito:', reg.scope))
+            navigator.serviceWorker.register('./firebase-messaging-sw.js')
+                .then((reg) => console.log('✅ PWA SW registrado. Scope:', reg.scope))
                 .catch((err) => console.error('❌ Error registrando SW:', err));
         }
 
@@ -2387,6 +2703,31 @@
             }
         }
 
+
+        // ---- POPUP 3RA ASISTENCIA ----
+        // personas3ra is declared at line 2311
+
+        function show3raPopup() {
+            openModal('popup3raModal');
+            const lista = document.getElementById('lista3ra');
+            if (personas3ra.length === 0) {
+                lista.innerHTML = '<p style="color:#888;text-align:center;padding:20px;">No hay datos cargados aún.<br>Abre el Dashboard primero.</p>';
+                return;
+            }
+            lista.innerHTML = personas3ra.map(p => `
+                <div style="background:#f8f9fa;border-radius:10px;padding:12px;display:flex;justify-content:space-between;align-items:center;border-left:4px solid #6f42c1;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+                    <div>
+                        <strong style="font-size:0.95rem;">${p.nombre}</strong>
+                        <div style="font-size:0.78rem;color:#555;margin-top:3px;">
+                            ${p.sexo === 'M' ? '👨' : '👩'} ${p.sexo === 'M' ? 'Masculino' : 'Femenino'} &nbsp;|&nbsp; 🔗 ${p.conector || '—'}
+                        </div>
+                        <div style="font-size:0.78rem;color:#888;">🌟 ${p.totalAsistencias} asistencias</div>
+                    </div>
+                    <a href="https://wa.me/${(p.telefono||'').replace(/[^\d]/g,'')}" target="_blank" class="whatsapp-btn" style="width:36px;height:36px;font-size:1rem;flex-shrink:0;margin-left:10px;">💬</a>
+                </div>
+            `).join('');
+        }
+
         // Inicialización
         requestNotificationPermission();
         fetchNotifications();
@@ -2404,6 +2745,146 @@
         processOfflineQueue();
 
     </script>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="pinModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('pinModal')">&times;</button>
+            <h3>🔒 Acceso Restringido</h3>
+            <p>Ingresa el PIN de conexión:</p>
+            <input type="password" id="pinInput" style="width:100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 1.2rem; text-align: center; margin-bottom: 15px;">
+            <button class="btn-primary" onclick="verifyPin()">Entrar</button>
+            <p id="pinError" style="color: red; display: none; margin-top: 10px;">PIN Incorrecto</p>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="historyMenuModal">
+        <div class="modal-content" style="text-align: center;">
+            <button class="modal-close" onclick="closeModal('historyMenuModal')">&times;</button>
+            <h3>📋 Menú de Historial</h3>
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                <button class="btn-primary" onclick="openDashboard()" style="background: linear-gradient(135deg, #007bff, #6610f2); border: none;">📊 Ver Resultados</button>
+                <button class="btn-primary" onclick="openNewcomers()" style="background: linear-gradient(135deg, #ffc107, #fd7e14); border: none; color: #fff;">🆕 Nuevos Semanales</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="dashboardModal">
+        <div class="modal-content dashboard-container" style="max-width:600px; max-height:90vh; overflow-y:auto;">
+            <button class="modal-close" onclick="closeModal('dashboardModal')">&times;</button>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <button onclick="closeModal('dashboardModal'); openModal('historyMenuModal');" style="display:flex;align-items:center;gap:5px;padding:6px 14px;border-radius:8px;border:1px solid #ddd;background:#f0f0f0;cursor:pointer;font-size:0.85rem;color:#555;transition:background 0.2s;" onmouseenter="this.style.background='#e0e0e0'" onmouseleave="this.style.background='#f0f0f0'">
+                    <span style="font-size:1.1rem;">⬅</span> Volver
+                </button>
+                <h3 style="margin:0;flex:1;">📊 Desempeño Invictus</h3>
+            </div>
+            <div id="dashboardContent" style="display:flex; flex-direction:column; gap:18px;">
+            <!-- Filtro por mes y año -->
+            <div style="background:linear-gradient(135deg,#e8f0fe,#f3e5f5);border-radius:12px;padding:14px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;border:1px solid #d0d7f0;">
+                <span style="font-weight:700;color:#333;font-size:0.9rem;">📅 Período:</span>
+                <select id="filterMes" onchange="applyDashFilter()" style="padding:8px 12px;border-radius:8px;border:1px solid #c5cbe0;font-size:0.88rem;background:white;flex:1;min-width:110px;">
+                    <option value="1">Enero</option>
+                    <option value="2">Febrero</option>
+                    <option value="3">Marzo</option>
+                    <option value="4">Abril</option>
+                    <option value="5">Mayo</option>
+                    <option value="6">Junio</option>
+                    <option value="7">Julio</option>
+                    <option value="8">Agosto</option>
+                    <option value="9">Septiembre</option>
+                    <option value="10">Octubre</option>
+                    <option value="11">Noviembre</option>
+                    <option value="12">Diciembre</option>
+                </select>
+                <select id="filterAño" onchange="applyDashFilter()" style="padding:8px 12px;border-radius:8px;border:1px solid #c5cbe0;font-size:0.88rem;background:white;width:90px;">
+                    <option value="2025">2025</option>
+                    <option value="2026">2026</option>
+                    <option value="2027">2027</option>
+                </select>
+                <button onclick="clearDashFilter()" style="padding:8px 14px;border-radius:8px;border:none;background:#6c757d;color:white;font-size:0.82rem;font-weight:700;cursor:pointer;">↩ Esta semana</button>
+            </div>
+            <!-- Etiqueta del periodo activo -->
+            <div id="periodoLabel" style="text-align:center;font-size:0.82rem;color:#666;font-style:italic;margin-top:-8px;">Mostrando: últimos 7 días</div>
+
+                <!-- Tarjetas de métricas -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;" id="metricCards">
+                    <div style="background:linear-gradient(135deg,#007bff,#6610f2);border-radius:12px;padding:16px;color:white;text-align:center;">
+                        <div style="font-size:2rem;font-weight:800;" id="totalRegistrados">—</div>
+                        <div style="font-size:0.8rem;opacity:0.9;">Total Registrados</div>
+                    </div>
+                    <div style="background:linear-gradient(135deg,#28a745,#20c997);border-radius:12px;padding:16px;color:white;text-align:center;">
+                        <div style="font-size:2rem;font-weight:800;" id="totalNuevosSemana">—</div>
+                        <div style="font-size:0.8rem;opacity:0.9;">Nuevos del mes</div>
+                    </div>
+                    <div style="background:linear-gradient(135deg,#0dcaf0,#0d6efd);border-radius:12px;padding:16px;color:white;text-align:center;">
+                        <div style="font-size:2rem;font-weight:800;" id="totalHombres">—</div>
+                        <div style="font-size:0.8rem;opacity:0.9;">👨 Hombres</div>
+                    </div>
+                    <div style="background:linear-gradient(135deg,#fd7e14,#dc3545);border-radius:12px;padding:16px;color:white;text-align:center;">
+                        <div style="font-size:2rem;font-weight:800;" id="totalMujeres">—</div>
+                        <div style="font-size:0.8rem;opacity:0.9;">👩 Mujeres</div>
+                    </div>
+                    <div style="background:linear-gradient(135deg,#ffc107,#fd7e14);border-radius:12px;padding:16px;color:white;text-align:center;">
+                        <div style="font-size:2rem;font-weight:800;" id="totalIglesia">—</div>
+                        <div style="font-size:0.8rem;opacity:0.9;">⛪ Asisten a Iglesia</div>
+                    </div>
+                    <div onclick="show3raPopup()" style="background:linear-gradient(135deg,#6f42c1,#e83e8c);border-radius:12px;padding:16px;color:white;text-align:center;cursor:pointer;transition:transform 0.15s;" onmouseenter="this.style.transform='scale(1.03)'" onmouseleave="this.style.transform='scale(1)'" title="Toca para ver los nombres">
+                        <div style="font-size:2rem;font-weight:800;" id="total3ra">—</div>
+                        <div style="font-size:0.8rem;opacity:0.9;">🌟 En 3ra Asistencia</div>
+                    </div>
+                </div>
+                <!-- Gráfico de Géneros -->
+                <div style="background:#f8f9fa;border-radius:12px;padding:16px;">
+                    <h4 style="margin:0 0 12px 0;color:#333;">📊 Distribución por Género</h4>
+                    <div style="position:relative;height:220px;"><canvas id="genderChart"></canvas></div>
+                </div>
+                <!-- Gráfico por Conectores -->
+                <div style="background:#f8f9fa;border-radius:12px;padding:16px;">
+                    <h4 style="margin:0 0 12px 0;color:#333;">🔗 Personas por Conector</h4>
+                    <div style="position:relative;height:250px;"><canvas id="connectorChart"></canvas></div>
+                </div>
+                <!-- Lista de nuevos semanales -->
+                <div style="background:#f8f9fa;border-radius:12px;padding:16px;">
+                    <h4 style="margin:0 0 12px 0;color:#333;">🆕 Nuevos esta semana</h4>
+                    <div id="dashNuevos" style="max-height:300px;overflow-y:auto;"></div>
+                </div>
+            </div>
+            <div id="dashLoading" style="text-align:center;padding:40px 0;display:none;">
+                <div style="font-size:2rem;margin-bottom:10px;">⏳</div>
+                <p style="color:#888;">Cargando datos en tiempo real...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="newcomersModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('newcomersModal')">&times;</button>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <button onclick="closeModal('newcomersModal'); openModal('historyMenuModal');" style="display:flex;align-items:center;gap:5px;padding:6px 14px;border-radius:8px;border:1px solid #ddd;background:#f0f0f0;cursor:pointer;font-size:0.85rem;color:#555;transition:background 0.2s;" onmouseenter="this.style.background='#e0e0e0'" onmouseleave="this.style.background='#f0f0f0'">
+                    <span style="font-size:1.1rem;">⬅</span> Volver
+                </button>
+                <h3 style="margin:0;flex:1;">🆕 Nuevos Semanales</h3>
+            </div>
+            <div id="newcomersList" style="margin-top: 15px; max-height: 300px; overflow-y: auto;">
+                <p>Cargando...</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal 3ra Asistencia -->
+    <div class="modal-overlay" id="popup3raModal" style="z-index:3000;">
+        <div class="modal-content" style="max-width:420px;max-height:80vh;overflow-y:auto;">
+            <button class="modal-close" onclick="closeModal('popup3raModal')">&times;</button>
+            <button onclick="closeModal('popup3raModal'); openModal('dashboardModal');" style="position:absolute;top:12px;left:12px;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#555;z-index:10;" title="Volver al Dashboard">←</button>
+            <h3 style="margin-top:0;">🌟 En su 3ra Asistencia</h3>
+            <p style="color:#888;font-size:0.85rem;margin-bottom:16px;">Estas personas han asistido 3 o más veces. ¡Son candidatos de conexión profunda!</p>
+            <div id="lista3ra" style="display:flex;flex-direction:column;gap:10px;">
+                <p style="color:#999;text-align:center;">Cargando...</p>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>
